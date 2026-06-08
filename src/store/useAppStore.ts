@@ -2,6 +2,7 @@ import { create } from 'zustand'
 import { supabase } from '../lib/supabase'
 import type { Session } from '@supabase/supabase-js'
 import type { Profile } from '../types/profile'
+import { useGamifyStore } from './useGamifyStore'
 
 export type Theme = 'light' | 'dark' | 'system'
 
@@ -57,6 +58,13 @@ export const useAppStore = create<AppState>((set, get) => ({
     
     if (!error && data) {
       set({ profile: data, loading: false });
+      useGamifyStore.getState().setGamifyData({
+        points: data.points ?? 0,
+        streak: data.streak ?? 0,
+        history: data.workout_history ?? {},
+        customRewards: data.custom_rewards ?? [],
+        redeemedHistory: data.redeemed_history ?? []
+      });
     } else {
       set({ loading: false });
     }

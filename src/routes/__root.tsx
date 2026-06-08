@@ -5,11 +5,11 @@ import {
   useLocation
 } from "@tanstack/react-router";
 import {
-  Home,
   Camera,
   User as UserIcon,
   BarChart3,
-  History
+  History,
+  Trophy
 } from "lucide-react";
 import { cn } from "../lib/utils";
 import { useAppStore } from "../store/useAppStore";
@@ -45,7 +45,7 @@ function RootComponent() {
 
   if (!profile) {
     return (
-      <div className="min-h-screen bg-white dark:bg-zinc-950 flex items-center justify-center p-6 transition-colors">
+      <div className="min-h-screen bg-background flex items-center justify-center p-6 transition-colors">
         <div className="w-full max-w-md">
           <OnboardingForm onComplete={() => fetchProfile(session.user.id)} />
         </div>
@@ -54,7 +54,7 @@ function RootComponent() {
   }
 
   const navItems = [
-    { to: "/", icon: Home, label: "Diary" },
+    { to: "/", icon: Trophy, label: "Quest" },
     { to: "/overview", icon: BarChart3, label: "Stats" },
     { to: "/scan", icon: Camera, label: "Scan", isAction: true },
     { to: "/logs", icon: History, label: "Logs" },
@@ -62,7 +62,7 @@ function RootComponent() {
   ];
 
   return (
-    <div className="h-screen flex flex-col bg-white dark:bg-zinc-950 overflow-hidden selection:bg-purple-100 dark:selection:bg-purple-900/30 transition-colors">
+    <div className="h-screen flex flex-col bg-background overflow-hidden selection:bg-primary/20 transition-colors">
       {/* Scrollable Content Area */}
       <main
         ref={mainRef}
@@ -76,7 +76,7 @@ function RootComponent() {
       </main>
 
       {/* iOS Style Bottom Tab Bar */}
-      <nav className="fixed bottom-0 left-0 right-0 z-50 px-4 sm:px-6 pb-12 pt-4 ios-blur border-t border-zinc-100/50 dark:border-white/10 transition-colors">
+      <nav className="fixed bottom-0 left-0 right-0 z-50 px-4 sm:px-6 pb-12 pt-4 ios-blur border-t border-border transition-colors">
         <div className="max-w-md mx-auto flex justify-between items-center">
           {navItems.map((item) => {
             const Icon = item.icon;
@@ -88,10 +88,10 @@ function RootComponent() {
                     return (
                       <div
                         className={cn(
-                          "w-16 h-16 rounded-3xl flex items-center justify-center shadow-2xl transition-all -mt-12 border-[6px] border-white dark:border-zinc-950",
+                          "w-16 h-16 rounded-2xl flex items-center justify-center shadow-2xl transition-all -mt-12 border-[6px] border-background",
                           isActive
-                            ? "bg-purple-600 dark:bg-purple-500 text-white shadow-purple-300 dark:shadow-none scale-110"
-                            : "bg-zinc-900 dark:bg-white text-white dark:text-zinc-900 shadow-zinc-400 dark:shadow-none"
+                            ? "bg-primary text-primary-foreground shadow-lg shadow-primary/30 scale-110"
+                            : "bg-muted text-muted-foreground"
                         )}
                       >
                         <Icon className="w-8 h-8" />
@@ -103,7 +103,7 @@ function RootComponent() {
                     <div
                       className={cn(
                         "flex flex-col items-center gap-1 transition-all duration-300 px-2",
-                        isActive ? "text-zinc-900 dark:text-white scale-110" : "text-zinc-300 dark:text-zinc-700"
+                        isActive ? "text-secondary scale-110" : "text-muted-foreground/40"
                       )}
                     >
                       <Icon className="w-7 h-7" />

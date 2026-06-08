@@ -23,22 +23,24 @@ export default defineConfig({
     babel({ presets: [reactCompilerPreset()] }),
     VitePWA({
       registerType: 'autoUpdate',
-      includeAssets: ['favicon.svg', 'icons.svg'],
+      includeAssets: ['logo.png'],
       manifest: {
-        name: 'Zero-Cost Calorie Tracker',
-        short_name: 'CalTracker',
-        description: 'AI-Powered Calorie Tracking for Free',
-        theme_color: '#9333ea',
+        name: 'Project Riko',
+        short_name: 'Project Riko',
+        description: 'Project Riko - Gamified Fitness & Reward Tracker',
+        theme_color: '#0B1020',
         icons: [
           {
-            src: 'favicon.svg',
+            src: 'logo.png',
             sizes: '192x192',
-            type: 'image/svg+xml',
+            type: 'image/png',
+            purpose: 'any maskable'
           },
           {
-            src: 'favicon.svg',
+            src: 'logo.png',
             sizes: '512x512',
-            type: 'image/svg+xml',
+            type: 'image/png',
+            purpose: 'any maskable'
           }
         ]
       }

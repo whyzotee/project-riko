@@ -15,6 +15,11 @@ export interface Profile {
   goal: "weight_loss" | "maintenance" | "cut" | "bulk";
   tdee: number;
   updated_at?: string;
+  points?: number;
+  streak?: number;
+  workout_history?: Record<string, { gym: boolean; walk: boolean; steps10k?: boolean }>;
+  custom_rewards?: Array<{ id: string; name: string; points: number; emoji: string; isCustom?: boolean }>;
+  redeemed_history?: Array<{ id: string; rewardId: string; name: string; points: number; emoji: string; redeemedAt: string }>;
 }
 
 export interface MyRouterContext {

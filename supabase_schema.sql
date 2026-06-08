@@ -72,3 +72,16 @@ USING (
   bucket_id = 'food-images' AND 
   (storage.foldername(name))[1] = auth.uid()::text
 );
+
+-- =========================================================================
+-- MIGRATION: Add gamification columns to the profiles table
+-- Run this SQL in your Supabase SQL Editor to support the gamification features
+-- =========================================================================
+
+ALTER TABLE profiles 
+ADD COLUMN IF NOT EXISTS points INT DEFAULT 0,
+ADD COLUMN IF NOT EXISTS streak INT DEFAULT 0,
+ADD COLUMN IF NOT EXISTS workout_history JSONB DEFAULT '{}'::jsonb,
+ADD COLUMN IF NOT EXISTS custom_rewards JSONB DEFAULT '[]'::jsonb,
+ADD COLUMN IF NOT EXISTS redeemed_history JSONB DEFAULT '[]'::jsonb;
+

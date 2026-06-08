@@ -73,15 +73,15 @@ function LogDetailPage() {
 
   if (loading) {
     return (
-      <div className="flex flex-col items-center justify-center min-h-screen gap-6 animate-in fade-in duration-700 bg-white dark:bg-zinc-950">
+      <div className="flex flex-col items-center justify-center min-h-screen gap-6 animate-in fade-in duration-700 bg-background">
         <div className="relative w-16 h-16 flex items-center justify-center">
-          <div className="absolute inset-0 border-4 border-purple-500/10 rounded-full" />
-          <div className="absolute inset-0 border-4 border-purple-500 border-t-transparent rounded-full animate-spin" />
-          <Sparkles className="w-6 h-6 text-purple-500 fill-purple-500 animate-pulse" />
+          <div className="absolute inset-0 border-4 border-primary/10 rounded-full" />
+          <div className="absolute inset-0 border-4 border-primary border-t-transparent rounded-full animate-spin" />
+          <Sparkles className="w-6 h-6 text-secondary fill-secondary animate-pulse" />
         </div>
         <div className="space-y-2 text-center">
-          <p className="text-[10px] font-black uppercase tracking-[0.4em] text-zinc-400 dark:text-zinc-500">Fetching Details</p>
-          <p className="text-xl font-black tracking-tighter text-zinc-900 dark:text-white italic animate-pulse">Thinking...</p>
+          <p className="text-[10px] font-black uppercase tracking-[0.4em] text-muted-foreground">Fetching Details</p>
+          <p className="text-xl font-black tracking-tighter text-foreground italic animate-pulse">Thinking...</p>
         </div>
       </div>
     );
@@ -90,8 +90,8 @@ function LogDetailPage() {
   if (!log) {
     return (
       <div className="p-10 text-center space-y-4">
-        <p className="text-zinc-400 font-black uppercase tracking-widest">Log not found</p>
-        <Link to="/logs" className="text-purple-600 font-bold underline underline-offset-4 decoration-2">Go back to History</Link>
+        <p className="text-muted-foreground font-black uppercase tracking-widest">Log not found</p>
+        <Link to="/logs" className="text-secondary font-bold underline underline-offset-4 decoration-2">Go back to History</Link>
       </div>
     );
   }
@@ -101,21 +101,21 @@ function LogDetailPage() {
   return (
     <div className="flex flex-col min-h-full relative">
       {/* Fixed Header */}
-      <div className="fixed top-0 left-0 right-0 z-50 ios-blur px-6 pt-8 pb-4 flex items-center justify-between border-b border-zinc-50 dark:border-white/5">
+      <div className="fixed top-0 left-0 right-0 z-50 ios-blur px-6 pt-8 pb-4 flex items-center justify-between border-b border-border">
         <div className="max-w-md mx-auto w-full flex items-center justify-between">
-          <button onClick={() => window.history.back()} className="w-10 h-10 flex items-center justify-center bg-zinc-50 dark:bg-zinc-900 rounded-2xl text-zinc-400 dark:text-zinc-500 tap-effect">
+          <button onClick={() => window.history.back()} className="w-10 h-10 flex items-center justify-center bg-muted rounded-xl text-muted-foreground tap-effect">
             <ChevronLeft className="w-6 h-6" />
           </button>
           <div className="text-center">
-            <h1 className="text-[10px] font-black uppercase tracking-[0.3em] text-zinc-400 dark:text-zinc-500">History Detail</h1>
-            <p className="text-xs font-black text-zinc-900 dark:text-white mt-0.5 uppercase tracking-widest">
+            <h1 className="text-[10px] font-black uppercase tracking-[0.3em] text-muted-foreground">History Detail</h1>
+            <p className="text-xs font-black text-foreground mt-0.5 uppercase tracking-widest">
               {date.toLocaleDateString("en-US", { month: "short", day: "numeric" })}
             </p>
           </div>
           <button 
             onClick={handleDelete} 
             disabled={isDeleting} 
-            className="w-10 h-10 flex items-center justify-center bg-zinc-50 dark:bg-zinc-900 rounded-2xl text-zinc-400 dark:text-zinc-500 hover:text-red-500 transition-colors tap-effect"
+            className="w-10 h-10 flex items-center justify-center bg-muted rounded-xl text-muted-foreground hover:text-destructive hover:bg-destructive/10 transition-colors tap-effect"
           >
             {isDeleting ? <span className="w-4 h-4 border-2 border-red-500 border-t-transparent rounded-full animate-spin" /> : <Trash2 className="w-5 h-5" />}
           </button>
@@ -125,10 +125,10 @@ function LogDetailPage() {
       <main className="flex-1 pt-24 pb-10">
         <div className="max-w-md mx-auto px-6 space-y-8">
           <div className="space-y-4">
-            <div className="relative aspect-square w-full rounded-[48px] overflow-hidden shadow-2xl dark:shadow-none border dark:border-white/10 group">
+            <div className="relative aspect-square w-full rounded-2xl overflow-hidden shadow-2xl dark:shadow-none border border-border group">
               {imageUrl ? (
                 <>
-                  {!imageLoaded && <Skeleton className="absolute inset-0 w-full h-full rounded-[48px] bg-zinc-100 dark:bg-zinc-800 animate-pulse" />}
+                  {!imageLoaded && <Skeleton className="absolute inset-0 w-full h-full rounded-2xl bg-muted animate-pulse" />}
                   <img
                     src={imageUrl}
                     alt={log.food_name}
@@ -137,8 +137,8 @@ function LogDetailPage() {
                   />
                 </>
               ) : (
-                <div className="w-full h-full bg-zinc-50 dark:bg-zinc-900 flex items-center justify-center text-zinc-200 dark:text-zinc-800">
-                  <Skeleton className="w-full h-full rounded-[48px]" />
+                <div className="w-full h-full bg-muted flex items-center justify-center text-muted-foreground/30">
+                  <Skeleton className="w-full h-full rounded-2xl" />
                 </div>
               )}
               <div className="absolute inset-0 bg-linear-to-t from-black/60 via-transparent to-transparent"></div>
@@ -149,15 +149,15 @@ function LogDetailPage() {
 
             <div className="flex items-center gap-4 px-2">
               <div className="flex items-center gap-2">
-                <Clock className="w-4 h-4 text-zinc-400" />
-                <p className="text-[10px] font-black text-zinc-400 uppercase tracking-widest">
+                <Clock className="w-4 h-4 text-muted-foreground" />
+                <p className="text-[10px] font-black text-muted-foreground uppercase tracking-widest">
                   {date.toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" })}
                 </p>
               </div>
-              <div className="w-1 h-1 rounded-full bg-zinc-200 dark:bg-zinc-800"></div>
+              <div className="w-1 h-1 rounded-full bg-border"></div>
               <div className="flex items-center gap-2">
-                <Calendar className="w-4 h-4 text-zinc-400" />
-                <p className="text-[10px] font-black text-zinc-400 uppercase tracking-widest">
+                <Calendar className="w-4 h-4 text-muted-foreground" />
+                <p className="text-[10px] font-black text-muted-foreground uppercase tracking-widest">
                   {date.toLocaleDateString("en-US", { weekday: "long" })}
                 </p>
               </div>

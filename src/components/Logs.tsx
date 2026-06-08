@@ -120,12 +120,12 @@ export function Logs() {
   return (
     <div className="animate-in fade-in slide-in-from-bottom-8 duration-700 space-y-8 pb-6">
       <div className="space-y-2">
-        <h2 className="text-4xl font-black tracking-tight text-zinc-900 dark:text-white mb-2 px-2 italic">
+        <h2 className="text-4xl font-black tracking-tight text-foreground mb-2 px-2 italic uppercase">
           History
         </h2>
         <div className="flex items-center gap-2 px-2">
-          <History className="w-3.5 h-3.5 text-purple-500" />
-          <p className="text-zinc-400 dark:text-zinc-500 font-bold text-[9px] uppercase tracking-[0.25em]">
+          <History className="w-3.5 h-3.5 text-secondary" />
+          <p className="text-muted-foreground font-bold text-[9px] uppercase tracking-[0.25em]">
             Past meal logs by day
           </p>
         </div>
@@ -134,26 +134,26 @@ export function Logs() {
       {loading ? (
         <div className="flex flex-col items-center justify-center py-24 gap-6 animate-in fade-in duration-700">
           <div className="relative w-16 h-16 flex items-center justify-center">
-            <div className="absolute inset-0 border-4 border-purple-500/10 rounded-full" />
-            <div className="absolute inset-0 border-4 border-purple-500 border-t-transparent rounded-full animate-spin" />
-            <Sparkles className="w-6 h-6 text-purple-500 fill-purple-500 animate-pulse" />
+            <div className="absolute inset-0 border-4 border-primary/10 rounded-full" />
+            <div className="absolute inset-0 border-4 border-primary border-t-transparent rounded-full animate-spin" />
+            <Sparkles className="w-6 h-6 text-secondary fill-secondary animate-pulse" />
           </div>
           <div className="space-y-2 text-center">
-            <p className="text-[10px] font-black uppercase tracking-[0.4em] text-zinc-400 dark:text-zinc-500">
+            <p className="text-[10px] font-black uppercase tracking-[0.4em] text-muted-foreground">
               Retrieving History
             </p>
-            <p className="text-xl font-black tracking-tighter text-zinc-900 dark:text-white italic animate-pulse">
+            <p className="text-xl font-black tracking-tighter text-foreground italic animate-pulse">
               Thinking...
             </p>
           </div>
         </div>
       ) : groupedLogs.length === 0 ? (
-        <div className="bg-zinc-50 dark:bg-zinc-900/50 rounded-4xl p-12 text-center space-y-4 border border-zinc-100 dark:border-white/10">
-          <History className="w-12 h-12 text-zinc-200 dark:text-zinc-800 mx-auto" />
-          <p className="font-black text-zinc-900 dark:text-white">
+        <div className="bg-card rounded-2xl p-12 text-center space-y-4 border border-border">
+          <History className="w-12 h-12 text-muted-foreground/30 mx-auto" />
+          <p className="font-black text-foreground">
             No logs found
           </p>
-          <p className="text-xs text-zinc-400 dark:text-zinc-500 font-bold uppercase tracking-widest leading-loose px-4">
+          <p className="text-xs text-muted-foreground font-bold uppercase tracking-widest leading-loose px-4">
             Scan your first meal to see it here
           </p>
         </div>
@@ -164,24 +164,24 @@ export function Logs() {
               {/* Date Header */}
               <div className="flex items-end justify-between px-2">
                 <div className="space-y-1">
-                  <p className="text-[10px] font-black text-purple-500 uppercase tracking-[0.3em]">
+                  <p className="text-[10px] font-black text-secondary uppercase tracking-[0.3em]">
                     {group.isToday
                       ? "Today"
                       : group.isYesterday
                         ? "Yesterday"
                         : group.date.split(",")[0]}
                   </p>
-                  <h3 className="text-2xl font-black text-zinc-900 dark:text-white tracking-tighter italic">
+                  <h3 className="text-2xl font-black text-foreground tracking-tighter italic">
                     {group.isToday || group.isYesterday
                       ? group.date
                       : group.date}
                   </h3>
                 </div>
                 <div className="text-right">
-                  <p className="text-xl font-black text-zinc-900 dark:text-white italic tracking-tighter leading-none">
+                  <p className="text-xl font-black text-foreground italic tracking-tighter leading-none">
                     {Math.round(group.totalCalories)}
                   </p>
-                  <p className="text-[8px] font-black text-zinc-400 uppercase tracking-widest mt-1">
+                  <p className="text-[8px] font-black text-muted-foreground uppercase tracking-widest mt-1">
                     TOTAL KCAL
                   </p>
                 </div>
@@ -194,9 +194,9 @@ export function Logs() {
                     key={log.id}
                     to="/logs/$logId"
                     params={{ logId: log.id.toString() }}
-                    className="bg-zinc-50 dark:bg-zinc-900/50 p-5 rounded-[36px] border border-zinc-100 dark:border-white/10 flex items-center gap-5 group hover:bg-white dark:hover:bg-zinc-900 hover:border-zinc-200 dark:hover:border-white/20 transition-all shadow-sm active:scale-[0.98]"
+                    className="bg-card p-5 rounded-xl border border-border flex items-center gap-5 group hover:bg-card/90 hover:border-border/80 transition-all shadow-sm active:scale-[0.98]"
                   >
-                    <div className="w-16 h-16 bg-white dark:bg-zinc-950 rounded-2xl flex items-center justify-center text-zinc-400 dark:text-zinc-600 group-hover:bg-purple-50 dark:group-hover:bg-purple-900/20 group-hover:text-purple-500 dark:group-hover:text-purple-400 transition-all shadow-sm shrink-0 overflow-hidden relative">
+                    <div className="w-16 h-16 bg-muted rounded-xl flex items-center justify-center text-muted-foreground group-hover:bg-primary/10 group-hover:text-secondary transition-all shadow-sm shrink-0 overflow-hidden relative">
                       {log.signed_url ? (
                         <ImageWithSkeleton
                           src={log.signed_url}
@@ -207,12 +207,12 @@ export function Logs() {
                       )}
                     </div>
                     <div className="flex-1 min-w-0">
-                      <h4 className="text-lg font-black text-zinc-900 dark:text-white tracking-tighter italic truncate leading-tight">
+                      <h4 className="text-lg font-black text-foreground tracking-tighter italic truncate leading-tight">
                         {log.food_name}
                       </h4>
                       <div className="flex items-center gap-3 mt-1.5">
-                        <div className="flex items-center gap-1.5 text-purple-600 dark:text-purple-400">
-                          <Sparkles className="w-3 h-3 fill-purple-500/20" />
+                        <div className="flex items-center gap-1.5 text-secondary">
+                          <Sparkles className="w-3 h-3 fill-secondary/20" />
                           <p className="text-sm font-black italic tracking-tight">
                             {Math.round(log.calories)}{" "}
                             <span className="text-[10px] not-italic opacity-50 uppercase tracking-widest ml-0.5">
@@ -220,10 +220,10 @@ export function Logs() {
                             </span>
                           </p>
                         </div>
-                        <div className="w-1 h-1 bg-zinc-200 dark:bg-zinc-800 rounded-full" />
+                        <div className="w-1 h-1 bg-border rounded-full" />
                         <div className="flex items-center gap-1.5">
-                          <Clock className="w-3 h-3 text-zinc-400" />
-                          <p className="text-[10px] font-black text-zinc-400 dark:text-zinc-500 uppercase tracking-widest">
+                          <Clock className="w-3 h-3 text-muted-foreground" />
+                          <p className="text-[10px] font-black text-muted-foreground uppercase tracking-widest">
                             {new Date(log.created_at).toLocaleTimeString([], {
                               hour: "2-digit",
                               minute: "2-digit"

@@ -92,11 +92,11 @@ export const OnboardingForm: React.FC<{
   return (
     <div className="max-w-md mx-auto py-12 px-2 space-y-12 animate-in fade-in slide-in-from-bottom-8 duration-1000">
       <div className="space-y-4">
-        <h2 className="text-5xl font-black tracking-tighter text-zinc-900 dark:text-white leading-[0.9]">
+        <h2 className="text-5xl font-black tracking-tighter text-foreground leading-[0.9]">
           Let's get <br />
-          <span className="text-purple-600 dark:text-purple-400 italic">Started.</span>
+          <span className="text-secondary italic">Started.</span>
         </h2>
-        <p className="text-zinc-400 dark:text-zinc-500 font-bold text-sm tracking-widest uppercase">
+        <p className="text-muted-foreground font-bold text-sm tracking-widest uppercase">
           Set up your profile to calculate TDEE
         </p>
       </div>
@@ -105,7 +105,7 @@ export const OnboardingForm: React.FC<{
         <div className="space-y-6">
           {/* Goal selection (New) */}
           <div className="space-y-2">
-            <label className="flex items-center gap-2 text-[10px] font-black uppercase tracking-[0.2em] text-zinc-400 dark:text-zinc-500 ml-4">
+            <label className="flex items-center gap-2 text-[10px] font-black uppercase tracking-[0.2em] text-muted-foreground ml-4">
               <Target className="w-3 h-3" /> Your Goal
             </label>
             <div className="grid grid-cols-2 gap-3">
@@ -122,11 +122,11 @@ export const OnboardingForm: React.FC<{
                     value={item.id}
                     className="peer sr-only"
                   />
-                  <div className="h-20 bg-zinc-50 dark:bg-zinc-900/50 rounded-3xl p-4 flex flex-col justify-center border-2 border-transparent peer-checked:border-purple-600 dark:peer-checked:border-purple-500 peer-checked:bg-white dark:peer-checked:bg-zinc-900 transition-all group-hover:bg-zinc-100 dark:group-hover:bg-zinc-800/50 peer-checked:group-hover:bg-white dark:peer-checked:group-hover:bg-zinc-900">
-                    <span className="font-black text-xs uppercase tracking-wider text-zinc-900 dark:text-white leading-tight">
+                  <div className="h-20 bg-muted/50 rounded-xl p-4 flex flex-col justify-center border-2 border-transparent peer-checked:border-primary peer-checked:bg-card transition-all group-hover:bg-muted peer-checked:group-hover:bg-card">
+                    <span className="font-black text-xs uppercase tracking-wider text-foreground leading-tight">
                       {item.label}
                     </span>
-                    <span className="font-bold text-[10px] text-zinc-400 dark:text-zinc-500 uppercase tracking-widest mt-1">
+                    <span className="font-bold text-[10px] text-muted-foreground uppercase tracking-widest mt-1">
                       {item.desc}
                     </span>
                   </div>
@@ -138,28 +138,28 @@ export const OnboardingForm: React.FC<{
           {/* Age & Gender Row */}
           <div className="grid grid-cols-2 gap-4">
             <div className="space-y-2">
-              <label className="flex items-center gap-2 text-[10px] font-black uppercase tracking-[0.2em] text-zinc-400 dark:text-zinc-500 ml-4">
+              <label className="flex items-center gap-2 text-[10px] font-black uppercase tracking-[0.2em] text-muted-foreground ml-4">
                 <User className="w-3 h-3" /> Age
               </label>
               <input
                 type="number"
                 {...register("age", { valueAsNumber: true })}
                 placeholder="25"
-                className="w-full h-16 bg-zinc-50 dark:bg-zinc-900/50 rounded-[32px] px-6 font-black text-xl border-2 border-transparent focus:border-purple-200 dark:focus:border-purple-900/30 focus:bg-white dark:focus:bg-zinc-900 transition-all outline-none text-zinc-900 dark:text-white placeholder:text-zinc-300 dark:placeholder:text-zinc-700"
+                className="w-full h-16 bg-card rounded-xl px-6 font-black text-xl border border-border focus:border-primary focus:bg-card transition-all outline-none text-foreground placeholder:text-muted-foreground/30"
               />
               {errors.age && (
-                <p className="text-red-500 text-[10px] font-bold ml-4">
+                <p className="text-destructive text-[10px] font-bold ml-4">
                   {errors.age.message}
                 </p>
               )}
             </div>
             <div className="space-y-2">
-              <label className="flex items-center gap-2 text-[10px] font-black uppercase tracking-[0.2em] text-zinc-400 dark:text-zinc-500 ml-4">
+              <label className="flex items-center gap-2 text-[10px] font-black uppercase tracking-[0.2em] text-muted-foreground ml-4">
                 Gender
               </label>
               <select
                 {...register("gender")}
-                className="w-full h-16 bg-zinc-50 dark:bg-zinc-900/50 rounded-[32px] px-6 font-black text-lg border-2 border-transparent focus:border-purple-200 dark:focus:border-purple-900/30 focus:bg-white dark:focus:bg-zinc-900 transition-all outline-none appearance-none text-zinc-900 dark:text-white"
+                className="w-full h-16 bg-card rounded-xl px-6 font-black text-lg border border-border focus:border-primary focus:bg-card transition-all outline-none appearance-none text-foreground"
               >
                 <option value="male">Male</option>
                 <option value="female">Female</option>
@@ -171,7 +171,7 @@ export const OnboardingForm: React.FC<{
           {/* Weight & Height Row */}
           <div className="grid grid-cols-2 gap-4">
             <div className="space-y-2">
-              <label className="flex items-center gap-2 text-[10px] font-black uppercase tracking-[0.2em] text-zinc-400 dark:text-zinc-500 ml-4">
+              <label className="flex items-center gap-2 text-[10px] font-black uppercase tracking-[0.2em] text-muted-foreground ml-4">
                 <Weight className="w-3 h-3" /> Weight (kg)
               </label>
               <input
@@ -179,30 +179,30 @@ export const OnboardingForm: React.FC<{
                 step="0.1"
                 {...register("weight", { valueAsNumber: true })}
                 placeholder="70.5"
-                className="w-full h-16 bg-zinc-50 dark:bg-zinc-900/50 rounded-[32px] px-6 font-black text-xl border-2 border-transparent focus:border-purple-200 dark:focus:border-purple-900/30 focus:bg-white dark:focus:bg-zinc-900 transition-all outline-none text-zinc-900 dark:text-white placeholder:text-zinc-300 dark:placeholder:text-zinc-700"
+                className="w-full h-16 bg-card rounded-xl px-6 font-black text-xl border border-border focus:border-primary focus:bg-card transition-all outline-none text-foreground placeholder:text-muted-foreground/30"
               />
             </div>
             <div className="space-y-2">
-              <label className="flex items-center gap-2 text-[10px] font-black uppercase tracking-[0.2em] text-zinc-400 dark:text-zinc-500 ml-4">
+              <label className="flex items-center gap-2 text-[10px] font-black uppercase tracking-[0.2em] text-muted-foreground ml-4">
                 <Ruler className="w-3 h-3" /> Height (cm)
               </label>
               <input
                 type="number"
                 {...register("height", { valueAsNumber: true })}
                 placeholder="175"
-                className="w-full h-16 bg-zinc-50 dark:bg-zinc-900/50 rounded-[32px] px-6 font-black text-xl border-2 border-transparent focus:border-purple-200 dark:focus:border-purple-900/30 focus:bg-white dark:focus:bg-zinc-900 transition-all outline-none text-zinc-900 dark:text-white placeholder:text-zinc-300 dark:placeholder:text-zinc-700"
+                className="w-full h-16 bg-card rounded-xl px-6 font-black text-xl border border-border focus:border-primary focus:bg-card transition-all outline-none text-foreground placeholder:text-muted-foreground/30"
               />
             </div>
           </div>
 
           {/* Activity Level */}
           <div className="space-y-2">
-            <label className="flex items-center gap-2 text-[10px] font-black uppercase tracking-[0.2em] text-zinc-400 dark:text-zinc-500 ml-4">
+            <label className="flex items-center gap-2 text-[10px] font-black uppercase tracking-[0.2em] text-muted-foreground ml-4">
               <Activity className="w-3 h-3" /> Activity Level
             </label>
             <select
               {...register("activity_level")}
-              className="w-full h-20 bg-zinc-50 dark:bg-zinc-900/50 rounded-[32px] px-6 font-black text-lg border-2 border-transparent focus:border-purple-200 dark:focus:border-purple-900/30 focus:bg-white dark:focus:bg-zinc-900 transition-all outline-none appearance-none text-zinc-900 dark:text-white"
+              className="w-full h-20 bg-card rounded-xl px-6 font-black text-lg border border-border focus:border-primary focus:bg-card transition-all outline-none appearance-none text-foreground"
             >
               <option value="sedentary">Sedentary (No exercise)</option>
               <option value="lightly_active">Lightly Active (1-3 days)</option>
@@ -219,7 +219,7 @@ export const OnboardingForm: React.FC<{
           type="submit"
           disabled={isSubmitting}
           size="lg"
-          className="w-full bg-zinc-900 dark:bg-white hover:bg-black dark:hover:bg-zinc-200 text-white dark:text-zinc-900 rounded-[40px] h-20 group transition-all"
+          className="w-full bg-primary hover:bg-primary/95 text-primary-foreground rounded-xl h-20 group transition-all"
         >
           {isSubmitting ? (
             "Optimizing..."

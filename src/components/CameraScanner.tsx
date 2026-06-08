@@ -181,11 +181,11 @@ export const CameraScanner: React.FC<{ onSave: () => void }> = ({ onSave }) => {
     <div className="space-y-6 animate-in fade-in slide-in-from-bottom-8 duration-1000 h-full flex flex-col pb-6">
       {!image && (
         <div className="space-y-2 mb-4 px-2">
-          <h2 className="text-4xl font-black tracking-tight text-zinc-900 dark:text-white mb-2 italic">
+          <h2 className="text-4xl font-black tracking-tight text-foreground mb-2 italic uppercase">
             Scan{" "}
-            <span className="text-purple-600 dark:text-purple-400">Food.</span>
+            <span className="text-secondary">Food.</span>
           </h2>
-          <p className="text-zinc-400 dark:text-zinc-500 font-bold text-[10px] tracking-[0.2em] uppercase">
+          <p className="text-muted-foreground font-bold text-[10px] tracking-[0.2em] uppercase">
             AI Powered Nutrition Analysis
           </p>
         </div>
@@ -195,14 +195,14 @@ export const CameraScanner: React.FC<{ onSave: () => void }> = ({ onSave }) => {
         <div className="grid grid-cols-1 gap-4 flex-1">
           <button
             onClick={() => cameraInputRef.current?.click()}
-            className="group relative overflow-hidden bg-zinc-900 dark:bg-white rounded-[48px] p-10 flex flex-col items-center justify-center text-white dark:text-zinc-900 tap-effect shadow-2xl dark:shadow-none h-64"
+            className="group relative overflow-hidden bg-card rounded-2xl border border-border p-10 flex flex-col items-center justify-center text-foreground tap-effect shadow-2xl h-64"
           >
-            <div className="absolute top-0 right-0 w-32 h-32 bg-purple-500/20 blur-[60px] -mr-16 -mt-16"></div>
-            <Camera className="w-16 h-16 mb-6 group-hover:scale-110 transition-transform duration-500" />
+            <div className="absolute top-0 right-0 w-32 h-32 bg-primary/20 blur-[60px] -mr-16 -mt-16"></div>
+            <Camera className="w-16 h-16 mb-6 group-hover:scale-110 transition-transform duration-500 text-secondary" />
             <span className="text-2xl font-black tracking-tighter italic">
               Snap Photo
             </span>
-            <p className="text-zinc-500 dark:text-zinc-400 text-[10px] font-black tracking-[0.3em] uppercase mt-2">
+            <p className="text-muted-foreground text-[10px] font-black tracking-[0.3em] uppercase mt-2">
               Use Camera
             </p>
             <input
@@ -217,10 +217,10 @@ export const CameraScanner: React.FC<{ onSave: () => void }> = ({ onSave }) => {
 
           <button
             onClick={() => fileInputRef.current?.click()}
-            className="group bg-zinc-50 dark:bg-zinc-900/50 border-2 border-dashed border-zinc-200 dark:border-white/10 rounded-[48px] p-10 flex flex-col items-center justify-center text-zinc-400 dark:text-zinc-500 tap-effect hover:bg-white dark:hover:bg-zinc-900 hover:border-purple-200 dark:hover:border-purple-900/50 transition-all h-48"
+            className="group bg-muted/50 border-2 border-dashed border-border rounded-2xl p-10 flex flex-col items-center justify-center text-muted-foreground tap-effect hover:bg-muted hover:border-primary/50 transition-all h-48"
           >
-            <Upload className="w-10 h-10 mb-4 group-hover:-translate-y-2 transition-transform duration-500" />
-            <span className="text-lg font-black tracking-tight text-zinc-600 dark:text-zinc-400 italic">
+            <Upload className="w-10 h-10 mb-4 group-hover:-translate-y-2 transition-transform duration-500 text-secondary" />
+            <span className="text-lg font-black tracking-tight text-muted-foreground italic">
               Choose from Library
             </span>
             <input
@@ -237,23 +237,23 @@ export const CameraScanner: React.FC<{ onSave: () => void }> = ({ onSave }) => {
       {image && (
         <div className="flex-1 flex flex-col space-y-8">
           <div className="space-y-4">
-            <div className="relative aspect-square w-full rounded-[48px] overflow-hidden shadow-2xl dark:shadow-none border dark:border-white/10 group">
+            <div className="relative aspect-square w-full rounded-2xl overflow-hidden shadow-2xl dark:shadow-none border border-border group">
               <img
                 src={image}
                 alt="Food"
                 className="w-full h-full object-cover"
               />
               {loading && (
-                <div className="absolute inset-0 bg-white/80 dark:bg-zinc-950/80 backdrop-blur-md flex flex-col items-center justify-center z-20">
+                <div className="absolute inset-0 bg-background/90 backdrop-blur-md flex flex-col items-center justify-center z-20">
                   <div className="relative w-16 h-16 mb-6 flex items-center justify-center">
-                    <div className="absolute inset-0 border-4 border-purple-500/10 rounded-full" />
-                    <div className="absolute inset-0 border-4 border-purple-500 border-t-transparent rounded-full animate-spin" />
-                    <Sparkles className="w-6 h-6 text-purple-500 fill-purple-500 animate-pulse" />
+                    <div className="absolute inset-0 border-4 border-primary/10 rounded-full" />
+                    <div className="absolute inset-0 border-4 border-primary border-t-transparent rounded-full animate-spin" />
+                    <Sparkles className="w-6 h-6 text-secondary fill-secondary animate-pulse" />
                   </div>
-                  <p className="text-[10px] font-black uppercase tracking-[0.4em] text-zinc-400 dark:text-zinc-500">
+                  <p className="text-[10px] font-black uppercase tracking-[0.4em] text-muted-foreground">
                     Scanning Pixels
                   </p>
-                  <p className="text-xl font-black tracking-tighter text-zinc-900 dark:text-white italic animate-pulse">
+                  <p className="text-xl font-black tracking-tighter text-foreground italic animate-pulse">
                     Thinking...
                   </p>
                 </div>
@@ -278,7 +278,7 @@ export const CameraScanner: React.FC<{ onSave: () => void }> = ({ onSave }) => {
                         type="text"
                         value={editableName}
                         onChange={(e) => setEditableName(e.target.value)}
-                        className="text-4xl font-black text-white tracking-tighter italic bg-white/20 border border-white/30 rounded-xl px-2 w-full outline-hidden"
+                        className="text-4xl font-black text-white tracking-tighter italic bg-background/50 border border-border rounded-xl px-2 w-full outline-none"
                         autoFocus
                       />
                       <div className="flex items-center gap-2">
@@ -288,13 +288,13 @@ export const CameraScanner: React.FC<{ onSave: () => void }> = ({ onSave }) => {
                           onChange={(e) =>
                             setEditableServing(Number(e.target.value))
                           }
-                          className="text-xl font-black text-white tracking-tighter italic bg-white/20 border border-white/30 rounded-lg px-2 w-24 outline-hidden"
+                          className="text-xl font-black text-white tracking-tighter italic bg-background/50 border border-border rounded-lg px-2 w-24 outline-none"
                         />
                         <input
                           type="text"
                           value={editableUnit}
                           onChange={(e) => setEditableUnit(e.target.value)}
-                          className="text-xl font-black text-white tracking-tighter italic bg-white/20 border border-white/30 rounded-lg px-2 w-20 outline-hidden"
+                          className="text-xl font-black text-white tracking-tighter italic bg-background/50 border border-border rounded-lg px-2 w-20 outline-none"
                         />
                       </div>
                     </div>
@@ -318,18 +318,18 @@ export const CameraScanner: React.FC<{ onSave: () => void }> = ({ onSave }) => {
             <div className="flex items-center justify-between px-2">
               <div className="flex items-center gap-4">
                 <div className="flex items-center gap-2">
-                  <Clock className="w-4 h-4 text-zinc-400" />
-                  <p className="text-[10px] font-black text-zinc-400 uppercase tracking-widest">
+                  <Clock className="w-4 h-4 text-muted-foreground" />
+                  <p className="text-[10px] font-black text-muted-foreground uppercase tracking-widest">
                     {new Date().toLocaleTimeString([], {
                       hour: "2-digit",
                       minute: "2-digit"
                     })}
                   </p>
                 </div>
-                <div className="w-1 h-1 rounded-full bg-zinc-200 dark:bg-zinc-800"></div>
+                <div className="w-1 h-1 rounded-full bg-border"></div>
                 <div className="flex items-center gap-2">
-                  <Calendar className="w-4 h-4 text-zinc-400" />
-                  <p className="text-[10px] font-black text-zinc-400 uppercase tracking-widest">
+                  <Calendar className="w-4 h-4 text-muted-foreground" />
+                  <p className="text-[10px] font-black text-muted-foreground uppercase tracking-widest">
                     Today
                   </p>
                 </div>
@@ -341,8 +341,8 @@ export const CameraScanner: React.FC<{ onSave: () => void }> = ({ onSave }) => {
                   className={cn(
                     "flex items-center gap-2 px-4 py-2 rounded-full text-[10px] font-black uppercase tracking-widest transition-all tap-effect",
                     isEditing
-                      ? "bg-purple-600 text-white shadow-lg shadow-purple-500/20"
-                      : "bg-zinc-50 dark:bg-zinc-900 text-zinc-400 dark:text-zinc-500 border border-zinc-100 dark:border-white/5"
+                      ? "bg-success text-white shadow-lg shadow-success/20"
+                      : "bg-muted text-muted-foreground border border-border"
                   )}
                 >
                   {isEditing ? (
@@ -375,9 +375,9 @@ export const CameraScanner: React.FC<{ onSave: () => void }> = ({ onSave }) => {
               <button
                 onClick={saveLog}
                 disabled={loading}
-                className="w-full bg-zinc-900 dark:bg-white text-white dark:text-zinc-900 h-24 rounded-[48px] font-black text-xl shadow-2xl dark:shadow-none flex items-center justify-center gap-4 tap-effect hover:scale-[1.02] transition-all group disabled:opacity-50"
+                className="w-full bg-primary hover:bg-primary/95 text-primary-foreground h-24 rounded-2xl font-black text-xl shadow-2xl flex items-center justify-center gap-4 tap-effect hover:scale-[1.02] transition-all group disabled:opacity-50"
               >
-                <div className="w-12 h-12 bg-white/10 dark:bg-zinc-900/10 rounded-2xl flex items-center justify-center group-hover:rotate-12 transition-transform">
+                <div className="w-12 h-12 bg-primary-foreground/15 rounded-xl flex items-center justify-center group-hover:rotate-12 transition-transform">
                   {loading ? (
                     <Loader2 className="animate-spin" />
                   ) : (
@@ -385,7 +385,7 @@ export const CameraScanner: React.FC<{ onSave: () => void }> = ({ onSave }) => {
                   )}
                 </div>
                 {loading ? "Saving..." : "Log Meal"}
-                <ChevronRight className="w-7 h-7 text-zinc-500 dark:text-zinc-400 group-hover:translate-x-1 transition-transform" />
+                <ChevronRight className="w-7 h-7 text-primary-foreground/60 group-hover:translate-x-1 transition-transform" />
               </button>
             </>
           )}
