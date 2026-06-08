@@ -1,6 +1,6 @@
 import { Link, Outlet, useRouter } from '@tanstack/react-router'
 import { Home, Camera, User as UserIcon, BarChart3, History } from 'lucide-react'
-import { cn } from '../lib/utils'
+import { cn } from '../../lib/utils'
 
 export function RootComponent() {
   const router = useRouter()

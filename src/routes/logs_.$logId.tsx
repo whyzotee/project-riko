@@ -9,8 +9,8 @@ import {
   Sparkles
 } from "lucide-react";
 import { Skeleton } from "@/components/ui/skeleton";
-import { NutritionDisplay } from "@/components/NutritionDisplay";
-import type { NutritionData } from "@/components/NutritionDisplay";
+import { NutritionDisplay } from "@/components/scan/NutritionDisplay";
+import type { NutritionData } from "@/components/scan/NutritionDisplay";
 
 interface LogDetail extends NutritionData {
   id: number;

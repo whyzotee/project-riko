@@ -2,8 +2,8 @@ import React from "react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import * as z from "zod";
-import { supabase } from "../lib/supabase";
-import { Button } from "./ui/button";
+import { supabase } from "../../lib/supabase";
+import { Button } from "../ui/button";
 import { ChevronRight, User, Ruler, Weight, Activity, Target } from "lucide-react";
 
 const onboardingSchema = z.object({

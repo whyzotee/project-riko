@@ -53,7 +53,10 @@ Deno.serve(async (req: Request) => {
       prompt += ` Specifically consider these details: ${description}. Use them to provide an extremely accurate nutritional breakdown.`;
     }
 
-    const parts: any[] = [{ text: prompt }];
+    const parts: (
+      | { text: string }
+      | { inline_data: { mime_type: string; data: string } }
+    )[] = [{ text: prompt }];
 
     if (image) {
       const mimeMatch = image.match(/^data:([^;]+);base64,(.+)$/);

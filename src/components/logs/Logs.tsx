@@ -1,8 +1,8 @@
 import { useEffect, useState } from "react";
-import { supabase } from "../lib/supabase";
+import { supabase } from "../../lib/supabase";
 import { Link } from "@tanstack/react-router";
 import { History, Utensils, Sparkles, Clock } from "lucide-react";
-import { Skeleton } from "./ui/skeleton";
+import { Skeleton } from "../ui/skeleton";
 
 interface CalorieLog {
   id: number;

@@ -11,6 +11,8 @@ Build a high-performance, premium-feel (iOS/Dropset style) Gamified Fitness & Re
 - **Spacing**: Standardized responsive padding at `px-6 sm:px-10` for main content containers and `p-8 sm:p-10` for cards.
 - **Scroll Behavior**: Reset `main` container scroll to (0,0) on route changes via `useLocation` in `__root.tsx`.
 - **Loading Pattern**: Standardized "Thinking..." centered animation across all pages using `Loader2` and `Sparkles`.
+- **File Length Constraint**: All component and store files must be modular. No single file in the project may exceed 300 lines of code.
+- **Folder Structure Constraint**: In `src/components/`, subcomponents must be organized and divided into subfolders by page or feature (e.g. `auth/`, `scan/`, `dashboard/`, `logs/`, `overview/`, `profile/`, `layout/`) to maintain codebase cleanliness.
 
 ## 🧠 Key Knowledge
 - **Gamification**: Accumulate points by completing workouts (Gym: +100 PTS, Incline Walk: +50 PTS) for selected dates.
@@ -37,6 +39,9 @@ Build a high-performance, premium-feel (iOS/Dropset style) Gamified Fitness & Re
 9. [DONE] Integrate PWA Auto-Update configuration in Vite PWA plugin (`vite.config.ts`).
 10. [DONE] Add persistent chat logs in Zustand store, randomized personalized greetings (addressing user by name), and dynamic chatbot context (today's gym routine, calorie logs, and macros).
 11. [DONE] Implement client-side sequential model fallback retry loop (Gemini 2.5 Flash -> 2.5 Lite -> 2.0 Lite -> Gemma 4 26B) on quota limit (429) errors.
+12. [DONE] Refactor code to ensure no single file exceeds 300 lines and fix all compiler/linter warnings.
+
+13. [DONE] Deprecate and drop `workout_history` column from `profiles` table in SQL schema and TypeScript typings since records are stored relationally in `workout_records`.
 
 ---
 *Last Updated: Monday, June 8, 2026*

@@ -1,14 +1,9 @@
 import { useEffect, useState } from "react";
 import { TrendingUp, Target, Sparkles } from "lucide-react";
-import { useAppStore } from "../store/useAppStore";
-import { supabase } from "../lib/supabase";
+import { useAppStore } from "../../store/useAppStore";
+import { supabase } from "../../lib/supabase";
 import { Bar, BarChart, XAxis, YAxis, CartesianGrid } from "recharts";
-import {
-  type ChartConfig,
-  ChartContainer,
-  ChartTooltip,
-  ChartTooltipContent
-} from "@/components/ui/chart";
+import { type ChartConfig, ChartContainer, ChartTooltip, ChartTooltipContent } from "@/components/ui/chart";
 
 interface DailyData {
   day: string;
@@ -30,11 +25,7 @@ export function Overview() {
   const [loading, setLoading] = useState(true);
   const [chartData, setChartData] = useState<DailyData[]>([]);
   const [avgIntake, setAvgIntake] = useState(0);
-  const [macros, setMacros] = useState<MacroStats>({
-    protein: 0,
-    carbs: 0,
-    fat: 0
-  });
+  const [macros, setMacros] = useState<MacroStats>({ protein: 0, carbs: 0, fat: 0 });
 
   useEffect(() => {
     async function fetchData() {
@@ -63,44 +54,27 @@ export function Overview() {
 
       // Process Data for Chart
       const days = ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"];
-      const last7Days: DailyData[] = [];
-
-      for (let i = 6; i >= 0; i--) {
+      const last7Days: DailyData[] = Array.from({ length: 7 }, (_, i) => {
         const d = new Date();
-        d.setDate(now.getDate() - i);
-        last7Days.push({
-          day: days[d.getDay()],
-          calories: 0,
-          fullDate: d.toLocaleDateString()
-        });
-      }
+        d.setDate(now.getDate() - (6 - i));
+        return { day: days[d.getDay()], calories: 0, fullDate: d.toLocaleDateString() };
+      });
 
-      let totalP = 0,
-        totalC = 0,
-        totalF = 0;
-
+      let totalP = 0, totalC = 0, totalF = 0;
       data?.forEach((log) => {
         const logDate = new Date(log.created_at).toLocaleDateString();
         const chartItem = last7Days.find((item) => item.fullDate === logDate);
-        if (chartItem) {
-          chartItem.calories += Number(log.calories);
-        }
+        if (chartItem) chartItem.calories += Number(log.calories);
         totalP += Number(log.protein || 0);
         totalC += Number(log.carbs || 0);
         totalF += Number(log.fat || 0);
       });
 
-      // Update fill colors based on target
       last7Days.forEach((item) => {
         item.fill = item.calories > target ? "#ef4444" : "#9810FA";
       });
 
-      // Calculate Averages (only for days that have logs or just avg over 7?)
-      // Let's do avg over 7 days for consistency
-      const avg = Math.round(
-        last7Days.reduce((acc, curr) => acc + curr.calories, 0) / 7
-      );
-
+      const avg = Math.round(last7Days.reduce((acc, curr) => acc + curr.calories, 0) / 7);
       setChartData(last7Days);
       setAvgIntake(avg);
 

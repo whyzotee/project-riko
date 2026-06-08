@@ -50,20 +50,45 @@ export const useAppStore = create<AppState>((set, get) => ({
   },
 
   fetchProfile: async (userId: string) => {
-    const { data, error } = await supabase
+    const { data: profile, error: profileErr } = await supabase
       .from("profiles")
       .select("*")
       .eq("id", userId)
       .single();
     
-    if (!error && data) {
-      set({ profile: data, loading: false });
-      useGamifyStore.getState().setGamifyData({
-        points: data.points ?? 0,
-        streak: data.streak ?? 0,
-        history: data.workout_history ?? {},
-        customRewards: data.custom_rewards ?? [],
-        redeemedHistory: data.redeemed_history ?? []
+    const { data: records, error: recordsErr } = await supabase
+      .from("workout_records")
+      .select("*")
+      .eq("user_id", userId);
+    
+    if (!profileErr && profile) {
+      set({ profile, loading: false });
+      
+      const historyRecord: Record<string, { gym: boolean; walk: boolean; steps10k?: boolean }> = {};
+      interface WorkoutRow {
+        date: string;
+        gym: boolean;
+        walk: boolean;
+        steps10k: boolean;
+      }
+      
+      if (!recordsErr && records) {
+        (records as unknown as WorkoutRow[]).forEach((row) => {
+          historyRecord[row.date] = {
+            gym: row.gym || false,
+            walk: row.walk || false,
+            steps10k: row.steps10k || false,
+          };
+        });
+      }
+
+      const gamifyStore = useGamifyStore.getState();
+      gamifyStore.setGamifyData({
+        points: profile.points !== undefined && profile.points !== null ? profile.points : gamifyStore.points,
+        streak: profile.streak !== undefined && profile.streak !== null ? profile.streak : gamifyStore.streak,
+        history: records !== null && records !== undefined ? historyRecord : gamifyStore.history,
+        customRewards: profile.custom_rewards !== undefined && profile.custom_rewards !== null ? profile.custom_rewards : gamifyStore.customRewards,
+        redeemedHistory: profile.redeemed_history !== undefined && profile.redeemed_history !== null ? profile.redeemed_history : gamifyStore.redeemedHistory
       });
     } else {
       set({ loading: false });

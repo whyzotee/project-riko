@@ -14,8 +14,8 @@ import {
 import { cn } from "../lib/utils";
 import { useAppStore } from "../store/useAppStore";
 import { useEffect } from "react";
-import { Auth } from "../components/Auth";
-import { OnboardingForm } from "../components/OnboardingForm";
+import { Auth } from "../components/auth/Auth";
+import { OnboardingForm } from "../components/auth/OnboardingForm";
 import type { MyRouterContext } from "../types/profile";
 
 export const Route = createRootRouteWithContext<MyRouterContext>()({

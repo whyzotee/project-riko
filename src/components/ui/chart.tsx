@@ -35,14 +35,27 @@ export function ChartContainer({
 
 export const ChartTooltip = Tooltip
 
-export function ChartTooltipContent({ active, payload, label, hideLabel }: any) {
+interface ChartTooltipPayloadItem {
+  color?: string
+  fill?: string
+  value: number | string
+}
+
+export interface ChartTooltipContentProps {
+  active?: boolean
+  payload?: ChartTooltipPayloadItem[]
+  label?: string
+  hideLabel?: boolean
+}
+
+export function ChartTooltipContent({ active, payload, label, hideLabel }: ChartTooltipContentProps) {
   if (!active || !payload?.length) return null
 
   return (
     <div className="rounded-2xl border border-zinc-200 bg-white p-3 shadow-2xl animate-in fade-in zoom-in-95 duration-200">
       {!hideLabel && <div className="mb-2 font-black uppercase tracking-widest text-[10px] text-zinc-400">{label}</div>}
       <div className="space-y-1.5">
-        {payload.map((item: any, index: number) => (
+        {payload.map((item: ChartTooltipPayloadItem, index: number) => (
           <div key={index} className="flex items-center gap-2.5">
             <div className="h-2 w-2 rounded-full" style={{ backgroundColor: item.color || item.fill }} />
             <span className="font-black text-zinc-900 text-sm tracking-tighter">

@@ -1,5 +1,5 @@
 import { createFileRoute, useNavigate } from '@tanstack/react-router'
-import { CameraScanner } from '../components/CameraScanner'
+import { CameraScanner } from '../components/scan/CameraScanner'
 
 export const Route = createFileRoute('/scan')({
   component: ScanPage,
