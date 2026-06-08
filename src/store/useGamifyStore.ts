@@ -38,6 +38,7 @@ interface GamifyState {
   history: Record<string, WorkoutDay> // Key: YYYY-MM-DD
   customRewards: Reward[]
   redeemedHistory: RedeemedItem[]
+  chatHistory: Array<{ sender: "user" | "riko"; text: string }>
   
   // Actions
   setGamifyData: (data: {
@@ -55,6 +56,8 @@ interface GamifyState {
   deleteCustomReward: (id: string) => void
   redeemReward: (reward: Reward) => boolean
   recalculateStreak: () => void
+  addChatMessage: (msg: { sender: "user" | "riko"; text: string }) => void
+  clearChatHistory: (customMessage?: string) => void
 }
 
 const syncToSupabase = async (
@@ -96,6 +99,12 @@ export const useGamifyStore = create<GamifyState>()(
       history: {},
       customRewards: [],
       redeemedHistory: [],
+      chatHistory: [
+        {
+          sender: "riko",
+          text: "สวัสดีค่ะ! โค้ชริโกะยินดีที่ได้คุยกับคุณในวันนี้น้า 🎀 วันนี้เหนื่อยไหมคะ? หรือมีอะไรอยากปรึกษาเรื่องฟิตเนส การกิน หรือการออกกำลังกาย ถามริโกะได้เลยนะ!"
+        }
+      ],
 
       setGamifyData: (data) => {
         set({
@@ -273,6 +282,24 @@ export const useGamifyStore = create<GamifyState>()(
         }
 
         set({ streak: currentStreak })
+      },
+
+      addChatMessage: (msg) => {
+        set((state) => ({
+          chatHistory: [...state.chatHistory, msg]
+        }))
+      },
+
+      clearChatHistory: (customMessage) => {
+        const defaultMessage = "สวัสดีค่ะ! โค้ชริโกะยินดีที่ได้คุยกับคุณในวันนี้น้า 🎀 วันนี้เหนื่อยไหมคะ? หรือมีอะไรอยากปรึกษาเรื่องฟิตเนส การกิน หรือการออกกำลังกาย ถามริโกะได้เลยนะ!";
+        set({
+          chatHistory: [
+            {
+              sender: "riko",
+              text: customMessage || defaultMessage
+            }
+          ]
+        })
       },
     }),
     {

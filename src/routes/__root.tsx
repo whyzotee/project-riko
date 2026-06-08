@@ -13,7 +13,7 @@ import {
 } from "lucide-react";
 import { cn } from "../lib/utils";
 import { useAppStore } from "../store/useAppStore";
-import { useEffect, useRef } from "react";
+import { useEffect } from "react";
 import { Auth } from "../components/Auth";
 import { OnboardingForm } from "../components/OnboardingForm";
 import type { MyRouterContext } from "../types/profile";
@@ -25,7 +25,6 @@ export const Route = createRootRouteWithContext<MyRouterContext>()({
 function RootComponent() {
   const { session, profile, loading, initialize, fetchProfile } = useAppStore();
   const location = useLocation();
-  const mainRef = useRef<HTMLElement>(null);
 
   useEffect(() => {
     const unsubscribe = initialize();
@@ -34,9 +33,7 @@ function RootComponent() {
 
   // Scroll to top on route change
   useEffect(() => {
-    if (mainRef.current) {
-      mainRef.current.scrollTo(0, 0);
-    }
+    window.scrollTo(0, 0);
   }, [location.pathname]);
 
   if (loading) return null;
@@ -62,12 +59,9 @@ function RootComponent() {
   ];
 
   return (
-    <div className="h-screen flex flex-col bg-background overflow-hidden selection:bg-primary/20 transition-colors">
+    <div className="min-h-screen flex flex-col bg-background selection:bg-primary/20 transition-colors">
       {/* Scrollable Content Area */}
-      <main
-        ref={mainRef}
-        className="flex-1 overflow-y-auto px-4 sm:px-6 pt-12 no-scrollbar"
-      >
+      <main className="flex-1 px-4 sm:px-6 pt-12">
         <div className="max-w-md mx-auto min-h-full flex flex-col">
           <Outlet />
           {/* Spacer for Bottom Nav */}
@@ -90,8 +84,8 @@ function RootComponent() {
                         className={cn(
                           "w-16 h-16 rounded-2xl flex items-center justify-center shadow-2xl transition-all -mt-12 border-[6px] border-background",
                           isActive
-                            ? "bg-primary text-primary-foreground shadow-lg shadow-primary/30 scale-110"
-                            : "bg-muted text-muted-foreground"
+                             ? "bg-primary text-primary-foreground shadow-lg shadow-primary/30 scale-110"
+                             : "bg-muted text-muted-foreground"
                         )}
                       >
                         <Icon className="w-8 h-8" />
@@ -120,8 +114,15 @@ function RootComponent() {
       </nav>
 
       <style>{`
+        html, body {
+          touch-action: manipulation;
+        }
         .no-scrollbar::-webkit-scrollbar { display: none; }
-        .no-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
+        .no-scrollbar { 
+          -ms-overflow-style: none; 
+          scrollbar-width: none; 
+          -webkit-overflow-scrolling: touch; 
+        }
         * { -webkit-tap-highlight-color: transparent; }
       `}</style>
     </div>

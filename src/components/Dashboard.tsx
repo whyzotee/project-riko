@@ -3,6 +3,7 @@ import { supabase } from "../lib/supabase";
 import { Link } from "@tanstack/react-router";
 import { useGamifyStore } from "../store/useGamifyStore";
 import type { Reward } from "../store/useGamifyStore";
+import { useAppStore } from "../store/useAppStore";
 import rikoImg from "../assets/riko.png";
 import { motion, AnimatePresence } from "framer-motion";
 import {
@@ -39,19 +40,47 @@ const formatLocalDate = (date: Date): string => {
 };
 
 export const Dashboard: React.FC<{ tdee: number }> = ({ tdee }) => {
+  const { session } = useAppStore();
   const {
     points,
     streak,
     history,
     customRewards,
     redeemedHistory,
+    chatHistory,
     toggleGym,
     toggleWalk,
     toggleSteps10k,
     addCustomReward,
     deleteCustomReward,
-    redeemReward
+    redeemReward,
+    addChatMessage,
+    clearChatHistory
   } = useGamifyStore();
+
+  const getUserName = () => {
+    if (session?.user?.user_metadata?.full_name) {
+      return session.user.user_metadata.full_name;
+    }
+    if (session?.user?.user_metadata?.name) {
+      return session.user.user_metadata.name;
+    }
+    if (session?.user?.email) {
+      return session.user.email.split("@")[0];
+    }
+    return "คนเก่ง";
+  };
+
+  const getRandomGreeting = (name: string) => {
+    const greetings = [
+      `สวัสดีค่ะคุณ ${name}! วันนี้เหนื่อยไหมคะ? โค้ชริโกะพร้อมคุยและให้คำแนะนำดีๆ เรื่องออกกำลังกายและอาหารการกินแล้วน้า มีอะไรระบายหรือถามริโกะได้เลยนะ! 🎀🥺💖`,
+      `เย้! ดีใจจังที่ได้คุยกับคุณ ${name} อีกครั้งน้า วันนี้ฟิตร่างกายมาหรือยังคะ? หรือถ้ากำลังมีเรื่องท้อใจ คุยกับริโกะได้เสมอนะคะ ริโกะพร้อมส่งพลังบวกให้เต็มที่เลย! 🏋️‍♀️💪✨`,
+      `ฮั่นแน่! วันนี้กินของอร่อยอะไรมาหรือยังคะคุณ ${name} 🎀 มาสะสมแต้มแคลฟรีเพื่อไปแลกรางวัลกันเถอะค่ะ! วันนี้มีอะไรอยากปรึกษาเรื่องฟิตเนสถามริโกะได้เลยน้า 💖🧋`,
+      `สวัสดีค่ะคุณ ${name} ริโกะสแตนด์บายรอเชียร์อยู่แล้วน้า! วันนี้มาชาเลนจ์ยิมหรือเดินชันดีคะ? คุยกับริโกะได้ทุกเรื่องเลยนะคะ ไม่ว่าจะกินหลุดหรือเหนื่อยแค่ไหนก็ตาม 🥺🎀`,
+      `สวัสดีค่ะคุณ ${name} โค้ชริโกะสแตนด์บายแล้วค่ะ! วันนี้เป้าหมายสุขภาพเป็นอย่างไรบ้างคะ? เล่าให้ริโกะฟังหน่อยน้า ริโกะพร้อมคอยช่วยแนะแนวและเป็นกำลังใจให้เสมอเลย! 💖💪`
+    ];
+    return greetings[Math.floor(Math.random() * greetings.length)];
+  };
 
   // Calorie logs states (secondary feature)
   const [logs, setLogs] = useState<Log[]>([]);
@@ -60,6 +89,7 @@ export const Dashboard: React.FC<{ tdee: number }> = ({ tdee }) => {
   const todayStr = formatLocalDate(new Date());
   const [selectedDateStr, setSelectedDateStr] = useState<string>(todayStr);
   const [showAddReward, setShowAddReward] = useState(false);
+  const [showRankDetails, setShowRankDetails] = useState(false);
   const [newRewardName, setNewRewardName] = useState("");
   const [newRewardPoints, setNewRewardPoints] = useState(200);
   const [newRewardEmoji, setNewRewardEmoji] = useState("🍲");
@@ -77,12 +107,6 @@ export const Dashboard: React.FC<{ tdee: number }> = ({ tdee }) => {
 
   // Chat with Riko States
   const [showChat, setShowChat] = useState(false);
-  const [chatMessages, setChatMessages] = useState<Array<{ sender: "user" | "riko"; text: string }>>([
-    {
-      sender: "riko",
-      text: "สวัสดีค่ะคนเก่ง! วันนี้เหนื่อยไหมคะ? ริโกะพร้อมคุยและให้คำปรึกษาเรื่องออกกำลังกายและอาหารการกินแล้วน้า หรือถ้าอยากให้แนะนำเมนูเด็ดๆ บอกริโกะได้เลยค่ะ! 🎀🥺💖"
-    }
-  ]);
   const [chatInput, setChatInput] = useState("");
   const [chatLoading, setChatLoading] = useState(false);
   const chatEndRef = useRef<HTMLDivElement>(null);
@@ -92,20 +116,44 @@ export const Dashboard: React.FC<{ tdee: number }> = ({ tdee }) => {
     if (chatEndRef.current) {
       chatEndRef.current.scrollIntoView({ behavior: "smooth" });
     }
-  }, [chatMessages, chatLoading]);
+  }, [chatHistory, chatLoading]);
+
+  // Initialize randomized personalized greeting on chat open if empty or default
+  useEffect(() => {
+    if (showChat && chatHistory.length <= 1) {
+      const username = getUserName();
+      const currentGreeting = chatHistory[0]?.text;
+      
+      const greetingPatternList = [
+        "สวัสดีค่ะคุณ",
+        "เย้! ดีใจจังที่ได้คุยกับคุณ",
+        "ฮั่นแน่! วันนี้กินของอร่อยอะไรมาหรือยังคะคุณ",
+        "สวัสดีค่ะ! โค้ชริโกะยินดีที่ได้คุยกับคุณ"
+      ];
+      
+      const isCustomGreetingAlreadySet = currentGreeting && greetingPatternList.some(pattern => 
+        currentGreeting.startsWith(pattern) && !currentGreeting.includes("สวัสดีค่ะ! โค้ชริโกะยินดีที่ได้คุยกับคุณในวันนี้น้า")
+      );
+
+      if (!isCustomGreetingAlreadySet) {
+        const randomGreeting = getRandomGreeting(username);
+        clearChatHistory(randomGreeting);
+      }
+    }
+  }, [showChat]);
 
   const handleSendMessage = async (textToSend?: string) => {
     const messageText = textToSend || chatInput;
     if (!messageText.trim() || chatLoading) return;
 
     const newUserMessage = { sender: "user" as const, text: messageText };
-    setChatMessages((prev) => [...prev, newUserMessage]);
+    addChatMessage(newUserMessage);
     setChatInput("");
     setChatLoading(true);
 
     try {
       const formattedHistory = [
-        ...chatMessages.map(msg => ({
+        ...chatHistory.map(msg => ({
           role: msg.sender === "user" ? "user" as const : "model" as const,
           parts: [{ text: msg.text }]
         })),
@@ -115,42 +163,139 @@ export const Dashboard: React.FC<{ tdee: number }> = ({ tdee }) => {
         }
       ];
 
+      const daysInThai = ["อาทิตย์", "จันทร์", "อังคาร", "พุธ", "พฤหัสบดี", "ศุกร์", "เสาร์"];
+      const todayDayName = daysInThai[new Date().getDay()];
+      const weeklyRoutine: Record<string, string> = {
+        "จันทร์": "อก + หลังแขน 🏋️",
+        "อังคาร": "หลัง + หน้าแขน 💪",
+        "พุธ": "พัก หรือ เดิน 10,000 ก้าว 👟",
+        "พฤหัสบดี": "ไหล่ + ขา 🦵",
+        "ศุกร์": "อก + หลัง 🔥",
+        "เสาร์": "เก็บตก หรือ เดิน 10,000 ก้าว 🚶",
+        "อาทิตย์": "พักผ่อนเต็มที่ 😴"
+      };
+      const todayRoutine = weeklyRoutine[todayDayName];
+
+      const foodSummary = logs.length > 0
+        ? logs.map(l => `- ${l.food_name} (${l.calories} kcal, โปรตีน ${l.protein || 0}g, ไขมัน ${l.fat || 0}g, คาร์บ ${l.carbs || 0}g)`).join("\n")
+        : "ยังไม่มีประวัติการกินอาหารวันนี้";
+
       const todayWorkout = history[todayStr];
-      const workoutInfo = `วันนี้ผู้ใช้:
-- ยิม: ${todayWorkout?.gym ? "เช็คอินแล้ว (เล่น อก + หลังแขน)" : "ยังไม่ได้เช็คอิน"}
-- เดินชัน: ${todayWorkout?.walk ? "เช็คอินแล้ว (เดินชัน)" : "ยังไม่ได้เช็คอิน"}
+      const workoutInfo = `ข้อมูลผู้ใช้วันนี้:
+- ชื่อผู้ใช้งาน: ${getUserName()} (กรุณาทักทายและเรียกผู้ใช้ด้วยชื่อนี้ เพื่อความเป็นกันเองและความสนิทสนม)
+- วันนี้คือวัน: ${todayDayName}
+- ตารางออกกำลังกายวันนี้คือ: ${todayRoutine}
+- เช็คอินเข้ายิมวันนี้: ${todayWorkout?.gym ? `เช็คอินแล้ว (เล่น ${todayRoutine})` : "ยังไม่ได้เช็คอิน"}
+- เช็คอินเดินชันวันนี้: ${todayWorkout?.walk ? "เช็คอินแล้ว (เดินชัน)" : "ยังไม่ได้เช็คอิน"}
+- เช็คอินเดิน 10,000 ก้าววันนี้: ${todayWorkout?.steps10k ? "เช็คอินแล้ว" : "ยังไม่ได้เช็คอิน"}
 - คะแนนสะสมรวม: ${points} แต้ม
 - สถิติติดต่อกัน (Streak): ${streak} วัน
-- แคลอรี่ที่กินวันนี้: ${consumedCalories} kcal (จาก TDEE ${tdee} kcal)`;
+- TDEE ของผู้ใช้: ${tdee} kcal
+- แคลอรี่รวมที่กินวันนี้: ${consumedCalories} kcal
+- สรุปสารอาหารรวมที่กินวันนี้: โปรตีน ${totalProtein.toFixed(1)}g, ไขมัน ${totalFat.toFixed(1)}g, คาร์บ ${totalCarbs.toFixed(1)}g
+- รายการอาหารที่กินวันนี้ทั้งหมด:
+${foodSummary}
 
-      const { data, error } = await supabase.functions.invoke("chat-riko", {
-        body: {
-          contents: formattedHistory,
-          workoutInfo: workoutInfo
+ตารางออกกำลังกายยิมประจำสัปดาห์ (โปรดแนะนำให้ตอบและแนะนำส่วนที่ต้องออกกำลังกายให้สอดคล้องกับตารางนี้):
+- วันจันทร์: อก + หลังแขน 🏋️
+- วันอังคาร: หลัง + หน้าแขน 💪
+- วันพุธ: พัก หรือ เดิน 10,000 ก้าว 👟
+- วันพฤหัสบดี: ไหล่ + ขา 🦵
+- วันศุกร์: อก + หลัง 🔥
+- วันเสาร์: เก็บตก หรือ เดิน 10,000 ก้าว 🚶
+- วันอาทิตย์: พักผ่อนเต็มที่ 😴`;
+
+      let responseData = null;
+      let invokeError = null;
+
+      try {
+        const { data, error } = await supabase.functions.invoke("chat-riko", {
+          body: {
+            contents: formattedHistory,
+            workoutInfo: workoutInfo
+          }
+        });
+        responseData = data;
+        invokeError = error;
+      } catch (invokeErr: any) {
+        invokeError = invokeErr;
+      }
+
+      const fallbackModels = [
+        "gemini-2.5-flash",
+        "gemini-2.5-flash-lite",
+        "gemini-2.0-flash-lite",
+        "gemma-4-26b-it"
+      ];
+
+      // If calling Supabase returned a quota error (usually 429), try fallback models in order
+      const statusIs429 = invokeError && (
+        (invokeError as any).status === 429 ||
+        (invokeError.message && invokeError.message.includes("429"))
+      );
+
+      if (statusIs429) {
+        console.warn("Primary Supabase Edge Function hit quota (429). Retrying with fallback models...");
+        for (const model of fallbackModels) {
+          try {
+            console.info(`Retrying Supabase invoke with model: ${model}`);
+            const retryResult = await supabase.functions.invoke("chat-riko", {
+              body: {
+                contents: formattedHistory,
+                workoutInfo: workoutInfo,
+                model: model
+              }
+            });
+
+            if (!retryResult.error && retryResult.data && retryResult.data.text) {
+              responseData = retryResult.data;
+              invokeError = null;
+              break; // Success! Break out of the loop
+            } else {
+              console.warn(`Fallback model ${model} failed via Supabase:`, retryResult.error);
+            }
+          } catch (retryErr) {
+            console.warn(`Fallback model ${model} threw error:`, retryErr);
+          }
         }
-      });
+      }
 
-      if (error || !data || !data.text) {
-        console.warn("Supabase edge function error, using client fallback", error);
+      if (invokeError || !responseData || !responseData.text) {
+        console.warn("Supabase edge function error, using client fallback", invokeError);
         const clientApiKey = import.meta.env.VITE_GEMINI_API_KEY;
         if (clientApiKey) {
-          const fallbackUrl = `https://generativelanguage.googleapis.com/v1beta/models/gemini-3.1-flash-lite-preview:generateContent?key=${clientApiKey}`;
-          const fallbackResponse = await fetch(fallbackUrl, {
-            method: "POST",
-            headers: { "Content-Type": "application/json" },
-            body: JSON.stringify({
-              contents: formattedHistory,
-              systemInstruction: {
-                parts: [{ text: `คุณคือ Coach Riko (โค้ชริโกะ) โค้ชผู้ช่วยฟิตเนสสาวสุดน่ารัก กระตือรือร้น ชอบส่งพลังบวก พูดภาษาไทยอย่างเป็นกันเอง ลงท้ายด้วยคำว่า 'ค่ะ', 'นะคะ', 'น้า' เสมอ และใช้อิโมจิน่ารักๆ ตอบเรื่องสุขภาพ ฟิตเนส แคลอรี่ และการกิน ข้อมูลผู้ใช้วันนี้: ${workoutInfo}` }]
+          const clientModels = [
+            "gemini-3.1-flash-lite-preview",
+            ...fallbackModels
+          ];
+
+          for (const model of clientModels) {
+            try {
+              const fallbackUrl = `https://generativelanguage.googleapis.com/v1beta/models/${model}:generateContent?key=${clientApiKey}`;
+              console.info(`Trying client fallback with model: ${model}`);
+              const fallbackResponse = await fetch(fallbackUrl, {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({
+                  contents: formattedHistory,
+                  systemInstruction: {
+                    parts: [{ text: `คุณคือ Coach Riko (โค้ชริโกะ) โค้ชผู้ช่วยฟิตเนสสาวสุดน่ารัก กระตือรือร้น ชอบส่งพลังบวก พูดภาษาไทยอย่างเป็นกันเอง ลงท้ายด้วยคำว่า 'ค่ะ', 'นะคะ', 'น้า' เสมอ และใช้อิโมจิน่ารักๆ ตอบเรื่องสุขภาพ ฟิตเนส แคลอรี่ และการกิน และเรียกผู้ใช้ด้วยชื่อคุณ ${getUserName()} ตลอดเพื่อความสนิทสนม ข้อมูลผู้ใช้วันนี้: ${workoutInfo}` }]
+                  }
+                })
+              });
+
+              if (fallbackResponse.ok) {
+                const fallbackResult = await fallbackResponse.json();
+                const fallbackText = fallbackResult.candidates[0].content.parts[0].text;
+                addChatMessage({ sender: "riko", text: fallbackText });
+                setChatLoading(false);
+                return; // Success!
+              } else {
+                console.warn(`Client fallback model ${model} failed with status: ${fallbackResponse.status}`);
               }
-            })
-          });
-          
-          if (fallbackResponse.ok) {
-            const fallbackResult = await fallbackResponse.json();
-            const fallbackText = fallbackResult.candidates[0].content.parts[0].text;
-            setChatMessages((prev) => [...prev, { sender: "riko", text: fallbackText }]);
-            return;
+            } catch (fallbackErr) {
+              console.error(`Client fallback model ${model} threw error:`, fallbackErr);
+            }
           }
         }
 
@@ -166,21 +311,22 @@ export const Dashboard: React.FC<{ tdee: number }> = ({ tdee }) => {
         }
 
         setTimeout(() => {
-          setChatMessages((prev) => [...prev, { sender: "riko", text: mockReply }]);
+          addChatMessage({ sender: "riko", text: mockReply });
+          setChatLoading(false);
         }, 1000);
       } else {
-        setChatMessages((prev) => [...prev, { sender: "riko", text: data.text }]);
+        addChatMessage({ sender: "riko", text: responseData.text });
+        setChatLoading(false);
       }
     } catch (err) {
       console.error(err);
       setTimeout(() => {
-        setChatMessages((prev) => [
-          ...prev,
-          { sender: "riko", text: "ริโกะสัญญาณเน็ตขัดข้องนิดหน่อยค่ะ... แต่ใจริโกะยังส่งพลังเชียร์คุณเต็มที่เสมอนะคะ! สู้ๆ น้า! 💖🎀" }
-        ]);
+        addChatMessage({
+          sender: "riko",
+          text: "ริโกะสัญญาณเน็ตขัดข้องนิดหน่อยค่ะ... แต่ใจริโกะยังส่งพลังเชียร์คุณเต็มที่เสมอนะคะ! สู้ๆ น้า! 💖🎀"
+        });
+        setChatLoading(false);
       }, 1000);
-    } finally {
-      setChatLoading(false);
     }
   };
 
@@ -213,6 +359,9 @@ export const Dashboard: React.FC<{ tdee: number }> = ({ tdee }) => {
   }, []);
 
   const consumedCalories = logs.reduce((sum, log) => sum + Number(log.calories), 0);
+  const totalProtein = logs.reduce((sum, log) => sum + Number(log.protein || 0), 0);
+  const totalFat = logs.reduce((sum, log) => sum + Number(log.fat || 0), 0);
+  const totalCarbs = logs.reduce((sum, log) => sum + Number(log.carbs || 0), 0);
   const remainingCalories = Math.max(0, tdee - consumedCalories);
 
   // Grid calculation: last 5 weeks (35 days)
@@ -398,7 +547,7 @@ export const Dashboard: React.FC<{ tdee: number }> = ({ tdee }) => {
 
       {/* Riko's Motivation Card */}
       <div className="bg-gradient-to-r from-primary/10 to-secondary/10 rounded-2xl p-5 border border-primary/20 flex items-center gap-4 relative overflow-hidden">
-        <div className="w-24 h-24 sm:w-28 sm:h-28 shrink-0 rounded-xl overflow-hidden border border-primary/20 bg-background/50 shadow-lg">
+        <div className="w-28 h-28 sm:w-36 sm:h-36 shrink-0 rounded-2xl overflow-hidden border border-primary/20 bg-background/50 shadow-lg">
           <img
             src={rikoImg}
             alt="Riko"
@@ -724,7 +873,10 @@ export const Dashboard: React.FC<{ tdee: number }> = ({ tdee }) => {
       {/* Points & Level Hero Card */}
       <div className="relative group">
         <div className="absolute -inset-4 bg-primary/10 rounded-2xl blur-3xl transition-all duration-700"></div>
-        <div className="bg-card rounded-2xl p-6 text-foreground relative shadow-[0_32px_64px_-16px_rgba(0,0,0,0.4)] border border-border overflow-hidden">
+        <div 
+          onClick={() => setShowRankDetails(!showRankDetails)}
+          className="bg-card rounded-2xl p-6 text-foreground relative shadow-[0_32px_64px_-16px_rgba(0,0,0,0.4)] border border-border overflow-hidden cursor-pointer hover:border-primary/40 transition-colors select-none"
+        >
           <div className="absolute top-0 right-0 w-64 h-64 bg-primary/10 blur-[80px] -mr-32 -mt-32"></div>
 
           <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
@@ -741,14 +893,71 @@ export const Dashboard: React.FC<{ tdee: number }> = ({ tdee }) => {
               </div>
             </div>
             <div className="sm:text-right border-t border-border/50 sm:border-none pt-3 sm:pt-0">
-              <span className="text-[10px] font-black tracking-[0.2em] text-muted-foreground uppercase block">
-                RANK
+              <span className="text-[10px] font-black tracking-[0.2em] text-muted-foreground uppercase flex items-center sm:justify-end gap-1.5">
+                RANK <span className="text-secondary text-[9px] bg-secondary/15 px-1.5 py-0.5 rounded font-bold">INFO ℹ️</span>
               </span>
               <p className="font-black text-xl italic text-secondary">
-                {points >= 1500 ? "Gym Lord 👑" : points >= 800 ? "Pro Lifter ⚡" : points >= 300 ? "Active Walker 👟" : "Rookie 🌱"}
+                {points >= 12000 ? "Gym Lord 👑" : points >= 6000 ? "Pro Lifter ⚡" : points >= 3000 ? "Iron Lifter 🏋️" : points >= 1000 ? "Active Walker 👟" : "Rookie 🌱"}
               </p>
             </div>
           </div>
+
+          <AnimatePresence>
+            {showRankDetails && (
+              <motion.div
+                initial={{ opacity: 0, height: 0 }}
+                animate={{ opacity: 1, height: "auto" }}
+                exit={{ opacity: 0, height: 0 }}
+                transition={{ duration: 0.3 }}
+                className="border-t border-border/50 mt-4 pt-4 space-y-3 overflow-hidden"
+              >
+                <div className="flex justify-between items-center">
+                  <p className="text-[10px] font-black tracking-[0.2em] text-muted-foreground uppercase">
+                    Rank Progression
+                  </p>
+                  <p className="text-[9px] font-bold text-secondary">
+                    เป้าหมายแต้มสะสม
+                  </p>
+                </div>
+                <div className="space-y-2">
+                  {[
+                    { name: "Rookie 🌱", target: 0, desc: "เริ่มต้นก้าวแรกแห่งการฟิตร่างกาย (สัปดาห์แรก)" },
+                    { name: "Active Walker 👟", target: 1000, desc: "เดินชันและขยับตัวต่อเนื่อง (สะสมแต้ม 2-3 สัปดาห์)" },
+                    { name: "Iron Lifter 🏋️", target: 3000, desc: "เข้ายิมยกเหล็กสร้างกล้ามเนื้อจริงจัง (สะสมแต้ม 1-2 เดือน)" },
+                    { name: "Pro Lifter ⚡", target: 6000, desc: "วินัยดีเลิศ ร่างกายเริ่มเปลี่ยนแปลงชัดเจน (สะสมแต้ม 3 เดือน)" },
+                    { name: "Gym Lord 👑", target: 12000, desc: "ราชาฟิตเนสผู้ครองวินัยเหล็กและครอบครองหุ่นในฝัน (สะสมแต้ม 6 เดือนขึ้นไป)" }
+                  ].map((r) => {
+                    const currentRank = points >= 12000 ? "Gym Lord 👑" : points >= 6000 ? "Pro Lifter ⚡" : points >= 3000 ? "Iron Lifter 🏋️" : points >= 1000 ? "Active Walker 👟" : "Rookie 🌱";
+                    const isCurrent = currentRank === r.name;
+                    const isUnlocked = points >= r.target;
+                    return (
+                      <div
+                        key={r.name}
+                        className={cn(
+                          "p-2.5 rounded-xl border flex items-center justify-between gap-3 text-xs transition-colors",
+                          isCurrent
+                            ? "bg-primary/15 border-primary/40 text-foreground"
+                            : isUnlocked
+                              ? "bg-muted/30 border-border/40 text-muted-foreground"
+                              : "bg-background/40 border-border/20 text-muted-foreground/50"
+                        )}
+                      >
+                        <div>
+                          <p className={cn("font-black", isCurrent ? "text-secondary" : "text-foreground")}>
+                            {r.name} {isCurrent && " (แรงค์ปัจจุบัน)"}
+                          </p>
+                          <p className="text-[9px] text-muted-foreground/80 mt-0.5">{r.desc}</p>
+                        </div>
+                        <span className="font-black text-right shrink-0">
+                          {r.target === 0 ? "เริ่มต้น" : `>= ${r.target} PTS`}
+                        </span>
+                      </div>
+                    );
+                  })}
+                </div>
+              </motion.div>
+            )}
+          </AnimatePresence>
         </div>
       </div>
 
@@ -1021,7 +1230,7 @@ export const Dashboard: React.FC<{ tdee: number }> = ({ tdee }) => {
               {/* Header */}
               <div className="flex items-center justify-between px-6 py-5 border-b border-border bg-card/50 backdrop-blur-md">
                 <div className="flex items-center gap-3">
-                  <div className="w-10 h-10 rounded-full overflow-hidden border border-primary/20 bg-background/50">
+                  <div className="w-12 h-12 rounded-full overflow-hidden border border-primary/20 bg-background/50 shadow-md">
                     <img src={rikoImg} alt="Riko" className="w-full h-full object-cover object-top" />
                   </div>
                   <div>
@@ -1034,17 +1243,32 @@ export const Dashboard: React.FC<{ tdee: number }> = ({ tdee }) => {
                     </div>
                   </div>
                 </div>
-                <button
-                  onClick={() => setShowChat(false)}
-                  className="w-8 h-8 rounded-full bg-muted flex items-center justify-center text-muted-foreground hover:text-foreground transition-colors"
-                >
-                  <X className="w-4 h-4" />
-                </button>
+                <div className="flex items-center gap-2">
+                  <button
+                    onClick={() => {
+                      if (confirm("คุณต้องการล้างประวัติการแชททั้งหมดใช่หรือไม่?")) {
+                        const username = getUserName();
+                        const randomGreeting = getRandomGreeting(username);
+                        clearChatHistory(randomGreeting);
+                      }
+                    }}
+                    className="w-8 h-8 rounded-full bg-muted/50 flex items-center justify-center text-muted-foreground hover:text-destructive transition-colors tap-effect"
+                    title="ล้างประวัติการแชท"
+                  >
+                    <Trash2 className="w-4 h-4" />
+                  </button>
+                  <button
+                    onClick={() => setShowChat(false)}
+                    className="w-8 h-8 rounded-full bg-muted flex items-center justify-center text-muted-foreground hover:text-foreground transition-colors"
+                  >
+                    <X className="w-4 h-4" />
+                  </button>
+                </div>
               </div>
 
               {/* Chat Messages scroll area */}
               <div className="flex-1 overflow-y-auto p-6 space-y-4 no-scrollbar">
-                {chatMessages.map((msg, idx) => (
+                {chatHistory.map((msg, idx) => (
                   <motion.div
                     key={idx}
                     initial={{ opacity: 0, scale: 0.9, y: 15 }}
@@ -1056,7 +1280,7 @@ export const Dashboard: React.FC<{ tdee: number }> = ({ tdee }) => {
                     )}
                   >
                     {msg.sender === "riko" && (
-                      <div className="w-7 h-7 rounded-full overflow-hidden border border-primary/20 bg-background shrink-0 mt-0.5">
+                      <div className="w-9 h-9 rounded-full overflow-hidden border border-primary/20 bg-background shrink-0 mt-0.5 shadow-sm">
                         <img src={rikoImg} alt="Riko" className="w-full h-full object-cover object-top" />
                       </div>
                     )}
@@ -1078,7 +1302,7 @@ export const Dashboard: React.FC<{ tdee: number }> = ({ tdee }) => {
                     animate={{ opacity: 1, scale: 1, y: 0 }}
                     className="flex gap-2.5 max-w-[85%] mr-auto items-center"
                   >
-                    <div className="w-7 h-7 rounded-full overflow-hidden border border-primary/20 bg-background shrink-0">
+                    <div className="w-9 h-9 rounded-full overflow-hidden border border-primary/20 bg-background shrink-0 shadow-sm">
                       <img src={rikoImg} alt="Riko" className="w-full h-full object-cover object-top" />
                     </div>
                     <div className="px-4 py-2.5 bg-muted text-muted-foreground rounded-2xl rounded-tl-none text-xs font-bold flex items-center gap-1.5">
@@ -1100,7 +1324,7 @@ export const Dashboard: React.FC<{ tdee: number }> = ({ tdee }) => {
                   "💡 วันนี้กินอะไรดีน้า?",
                   "💡 ขอกำลังใจออกกำลังกายหน่อย!",
                   "💡 วันนี้กินชานมไข่มุกมา แก้ไงดี?",
-                  "💡 แนะนำท่าลดหน้าท้องหน่อยค่ะ"
+                  "💡 แนะนำท่าลดหน้าท้องหน่อย"
                 ].map((chip) => (
                   <button
                     key={chip}

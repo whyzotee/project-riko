@@ -33,6 +33,10 @@ Build a high-performance, premium-feel (iOS/Dropset style) Gamified Fitness & Re
 5. [DONE] Demote Calorie tracker to a supporting/secondary card on Dashboard.
 6. [TODO] Add custom exercises with custom point settings.
 7. [DONE] Implement Supabase persistence and synchronization for all gamification features.
+8. [DONE] Optimize WebKit fast-scrolling (native scroll transition) and disable double-tap/pinch-to-zoom (viewport meta + touch-action manipulation).
+9. [DONE] Integrate PWA Auto-Update configuration in Vite PWA plugin (`vite.config.ts`).
+10. [DONE] Add persistent chat logs in Zustand store, randomized personalized greetings (addressing user by name), and dynamic chatbot context (today's gym routine, calorie logs, and macros).
+11. [DONE] Implement client-side sequential model fallback retry loop (Gemini 2.5 Flash -> 2.5 Lite -> 2.0 Lite -> Gemma 4 26B) on quota limit (429) errors.
 
 ---
 *Last Updated: Monday, June 8, 2026*
