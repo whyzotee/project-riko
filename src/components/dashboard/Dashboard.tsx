@@ -11,6 +11,7 @@ import { WorkoutHeatmap } from "./WorkoutHeatmap";
 import { WorkoutCheckin } from "./WorkoutCheckin";
 import { RewardShop } from "./RewardShop";
 import { DietDiaryCard } from "./DietDiaryCard";
+import { MealPlannerCard } from "./MealPlannerCard";
 import { CoachRikoChat } from "./CoachRikoChat";
 import type { Reward } from "../../store/useGamifyStore";
 
@@ -64,27 +65,28 @@ export const Dashboard: React.FC<{ tdee: number }> = ({ tdee }) => {
     return () => clearInterval(interval);
   }, []);
 
-  useEffect(() => {
-    const fetchLogs = async () => {
-      try {
-        const { data: { user } } = await supabase.auth.getUser();
-        if (!user) return;
-        const startOfDay = new Date();
-        startOfDay.setHours(0, 0, 0, 0);
-        const { data, error } = await supabase
-          .from("calorie_logs")
-          .select("*")
-          .eq("user_id", user.id)
-          .gte("created_at", startOfDay.toISOString())
-          .order("created_at", { ascending: false });
+  const fetchLogs = async () => {
+    try {
+      const { data: { user } } = await supabase.auth.getUser();
+      if (!user) return;
+      const startOfDay = new Date();
+      startOfDay.setHours(0, 0, 0, 0);
+      const { data, error } = await supabase
+        .from("calorie_logs")
+        .select("*")
+        .eq("user_id", user.id)
+        .gte("created_at", startOfDay.toISOString())
+        .order("created_at", { ascending: false });
 
-        if (!error && data) {
-          setLogs(data as Log[]);
-        }
-      } catch (err) {
-        console.error(err);
+      if (!error && data) {
+        setLogs(data as Log[]);
       }
-    };
+    } catch (err) {
+      console.error(err);
+    }
+  };
+
+  useEffect(() => {
     fetchLogs();
   }, []);
 
@@ -275,6 +277,8 @@ export const Dashboard: React.FC<{ tdee: number }> = ({ tdee }) => {
       <PointsCard points={points} streak={streak} />
 
       <RewardShop onRedeemSuccess={handleRedeemSuccess} />
+
+      <MealPlannerCard todayStr={todayStr} onMealLogged={fetchLogs} />
 
       <DietDiaryCard consumedCalories={consumedCalories} remainingCalories={remainingCalories} tdee={tdee} />
 

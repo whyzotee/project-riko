@@ -42,6 +42,7 @@ Build a high-performance, premium-feel (iOS/Dropset style) Gamified Fitness & Re
 12. [DONE] Refactor code to ensure no single file exceeds 300 lines and fix all compiler/linter warnings.
 
 13. [DONE] Deprecate and drop `workout_history` column from `profiles` table in SQL schema and TypeScript typings since records are stored relationally in `workout_records`.
+14. [DONE] Build Daily Meal Planner with local caching, single-meal refresh, and direct calorie logging for Thai street foods / 7-Eleven.
 
 ---
 *Last Updated: Monday, June 8, 2026*
