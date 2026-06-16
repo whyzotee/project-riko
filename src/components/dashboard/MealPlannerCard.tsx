@@ -10,9 +10,10 @@ import { MealRowItem } from "./MealRowItem";
 interface MealPlannerCardProps {
   todayStr: string;
   onMealLogged: () => void;
+  tdee: number;
 }
 
-export const MealPlannerCard: React.FC<MealPlannerCardProps> = ({ todayStr, onMealLogged }) => {
+export const MealPlannerCard: React.FC<MealPlannerCardProps> = ({ todayStr, onMealLogged, tdee }) => {
   const { session } = useAppStore();
   const { mealPlans, loading, error, setMealPlan, updateMeal, setLoading, setError } = useMealPlanStore();
 
@@ -29,13 +30,13 @@ export const MealPlannerCard: React.FC<MealPlannerCardProps> = ({ todayStr, onMe
     return "คนเก่ง";
   };
 
-  const handleGeneratePlan = async (force = false) => {
+  const handleGeneratePlan = async () => {
     if (!session?.user) return;
     setLoading(true);
     setError(null);
     try {
       const username = getUserName();
-      const plan = await generateMealPlanFromAPI(todayStr, username);
+      const plan = await generateMealPlanFromAPI(todayStr, username, tdee);
       setMealPlan(todayStr, plan);
     } catch (err) {
       console.error(err);
@@ -50,7 +51,7 @@ export const MealPlannerCard: React.FC<MealPlannerCardProps> = ({ todayStr, onMe
     setLocalMealLoading((prev) => ({ ...prev, [index]: true }));
     try {
       const username = getUserName();
-      const newMeal = await generateSingleMealFromAPI(todayStr, meal.type, meal.name, username);
+      const newMeal = await generateSingleMealFromAPI(todayStr, meal.type, meal.name, username, tdee);
       updateMeal(todayStr, index, newMeal);
       
       // Clear logged state for this meal slot since it's a new meal
@@ -120,7 +121,7 @@ export const MealPlannerCard: React.FC<MealPlannerCardProps> = ({ todayStr, onMe
 
         {currentPlan && !loading && (
           <button
-            onClick={() => handleGeneratePlan(true)}
+            onClick={() => handleGeneratePlan()}
             className="p-2 bg-muted hover:bg-muted/80 rounded-full transition-colors animate-in fade-in duration-300"
             title="รีเฟรชตารางอาหารทั้งหมด"
           >
@@ -153,7 +154,7 @@ export const MealPlannerCard: React.FC<MealPlannerCardProps> = ({ todayStr, onMe
           >
             <AlertCircle className="w-4 h-4 shrink-0" />
             <p className="flex-1">{error}</p>
-            <button onClick={() => handleGeneratePlan(true)} className="underline hover:no-underline font-bold">
+            <button onClick={() => handleGeneratePlan()} className="underline hover:no-underline font-bold">
               ลองใหม่
             </button>
           </motion.div>
@@ -210,7 +211,6 @@ export const MealPlannerCard: React.FC<MealPlannerCardProps> = ({ todayStr, onMe
                   <MealRowItem
                     key={index}
                     meal={meal}
-                    index={index}
                     isLogged={!!loggedMeals[loggedKey]}
                     isMealLoading={!!localMealLoading[index]}
                     onRefresh={() => handleRefreshMeal(index, meal)}

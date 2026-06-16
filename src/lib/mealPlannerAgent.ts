@@ -76,11 +76,11 @@ const clientGeminiFallback = async (prompt: string): Promise<string> => {
   throw new Error("Client API fallback failed");
 };
 
-export const generateMealPlanFromAPI = async (dateStr: string, userName: string): Promise<DailyMealPlan> => {
+export const generateMealPlanFromAPI = async (dateStr: string, userName: string, tdee: number): Promise<DailyMealPlan> => {
   try {
     // 1. Call recommend-meals Edge Function
     const { data, error } = await supabase.functions.invoke("recommend-meals", {
-      body: { date: dateStr, userName }
+      body: { date: dateStr, userName, tdee }
     });
 
     if (!error && data && data.meals && data.meals.length === 4) {
@@ -104,9 +104,10 @@ export const generateMealPlanFromAPI = async (dateStr: string, userName: string)
 ข้อกำหนดอาหาร:
 - ต้องเป็นอาหารที่หาทานได้ง่ายในไทย เช่น ร้านอาหารตามสั่ง, ร้านข้าวแกง, ร้านก๋วยเตี๋ยว, หรือ 7-Eleven
 - มีสารอาหารครบถ้วน (โปรตีนสูง คาร์บพอดี ไขมันต่ำ)
+- แคลอรีรวมทั้งหมดของทั้ง 4 มื้อควรใกล้เคียงเป้าหมายประจำวันคือ ${tdee} kcal (+/- 100 kcal)
 - ให้ส่งผลลัพธ์กลับมาในรูปแบบ JSON ตามโครงสร้างตัวอย่างนี้เท่านั้น:
 {
-  "rikoComment": "ริโกะเขียนทักทายคนเก่งอย่างน่ารักสดใสค่ะ 🎀🥗",
+  "rikoComment": "ริโกะเขียนทักทายคนเก่งอย่างน่ารักสดใสค่ะ โดยจัดพลังงานรวมให้อยู่ราวๆ ${tdee} kcal ค่ะ 🎀🥗",
   "meals": [
     { "type": "breakfast", "name": "ชื่ออาหารเช้า", "calories": 250, "protein": 18, "fat": 6, "carbs": 30, "location": "ร้านข้าวแกง" },
     { "type": "lunch", "name": "ชื่ออาหารกลางวัน", "calories": 450, "protein": 28, "fat": 12, "carbs": 55, "location": "ร้านก๋วยเตี๋ยว" },
@@ -135,12 +136,13 @@ export const generateSingleMealFromAPI = async (
   dateStr: string,
   mealType: Meal["type"],
   oldMealName: string,
-  userName: string
+  userName: string,
+  tdee: number
 ): Promise<Meal> => {
   try {
     // 1. Call recommend-meals Edge Function
     const { data, error } = await supabase.functions.invoke("recommend-meals", {
-      body: { date: dateStr, userName, mealType, excludeMealName: oldMealName }
+      body: { date: dateStr, userName, mealType, excludeMealName: oldMealName, tdee }
     });
 
     if (!error && data && data.name && data.calories > 0) {
@@ -160,6 +162,7 @@ export const generateSingleMealFromAPI = async (
 ข้อกำหนดอาหาร:
 - หาซื้อได้ง่ายในไทย เช่น ร้านตามสั่ง, ร้านข้าวแกง, ร้านก๋วยเตี๋ยว, หรือ 7-Eleven
 - มีโปรตีนสูง ดีต่อสุขภาพ และไม่ซ้ำกับ "${oldMealName}"
+- คำนวณปริมาณพลังงานของมื้อนี้ให้สอดคล้องกับเป้าหมายแคลอรีรวมทั้งวันคือ ${tdee} kcal
 - ให้ส่งผลลัพธ์กลับมาในรูปแบบ JSON ตามโครงสร้างตัวอย่างนี้เท่านั้น:
 {
   "type": "${mealType}",

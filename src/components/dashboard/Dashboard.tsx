@@ -278,7 +278,7 @@ export const Dashboard: React.FC<{ tdee: number }> = ({ tdee }) => {
 
       <RewardShop onRedeemSuccess={handleRedeemSuccess} />
 
-      <MealPlannerCard todayStr={todayStr} onMealLogged={fetchLogs} />
+      <MealPlannerCard todayStr={todayStr} onMealLogged={fetchLogs} tdee={tdee} />
 
       <DietDiaryCard consumedCalories={consumedCalories} remainingCalories={remainingCalories} tdee={tdee} />
 

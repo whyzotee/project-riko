@@ -9,6 +9,7 @@ const corsHeaders = {
 interface RequestPayload {
   date: string;
   userName: string;
+  tdee?: number;
   mealType?: 'breakfast' | 'lunch' | 'dinner' | 'snack';
   excludeMealName?: string;
 }
@@ -42,10 +43,12 @@ Deno.serve(async (req: Request) => {
     }
 
     // 2. Parse Request Payload
-    const { date, userName, mealType, excludeMealName }: RequestPayload = await req.json();
+    const { date, userName, tdee, mealType, excludeMealName }: RequestPayload = await req.json();
 
     const apiKey = Deno.env.get('GEMINI_API_KEY');
     if (!apiKey) throw new Error("GEMINI_API_KEY is not set");
+
+    const targetTdee = tdee || 1800; // Fallback default if not provided
 
     let prompt = "";
     if (mealType) {
@@ -55,6 +58,7 @@ Deno.serve(async (req: Request) => {
 - ต้องเป็นอาหารที่หาทานได้ง่ายในไทย เช่น ร้านอาหารตามสั่ง, ร้านข้าวแกง, ร้านก๋วยเตี๋ยว, หรือ 7-Eleven ในประเทศไทย
 - อาหารสุขภาพ โปรตีนสูง แคลอรีพอดี คาร์บและไขมันสมดุล
 - ห้ามเสนอเมนูเดิมที่ชื่อว่า "${excludeMealName || ""}" เด็ดขาด
+- คำนวณปริมาณพลังงานและสารอาหารของมื้อนี้ให้เหมาะสมกับเป้าหมายแคลอรีประจำวันคือ ${targetTdee} kcal (เฉลี่ยให้เหมาะสมกับสัดส่วนมื้อ)
 - ให้ส่งผลลัพธ์กลับมาในรูปแบบ JSON ตามตัวอย่างนี้เท่านั้น:
 {
   "type": "${mealType}",
@@ -71,10 +75,11 @@ Deno.serve(async (req: Request) => {
 ข้อกำหนดอาหาร:
 - ต้องเป็นอาหารที่หาทานได้ง่ายในประเทศไทย เช่น ร้านอาหารตามสั่ง, ร้านข้าวแกง, ร้านก๋วยเตี๋ยวชนิดต่างๆ, หรือของกินใน 7-Eleven
 - อาหารเพื่อสุขภาพ มีสารอาหารครบถ้วน (โปรตีนสูง คาร์บพอดี ไขมันต่ำ)
+- แคลอรีรวมของทั้ง 4 มื้อ (เช้า + กลางวัน + เย็น + ของว่าง) ต้องมีค่าใกล้เคียงกับค่า TDEE เป้าหมายประจำวันของผู้ใช้คือ ${targetTdee} kcal (+/- 100 kcal) โดยเฉลี่ยแต่ละมื้อให้สัมพันธ์กับเป้าหมายนี้ (เช่น มื้อเช้า 25%, มื้อกลางวัน 35%, มื้อเย็น 30%, ของว่าง 10% ของแคลอรีเป้าหมาย)
 - ให้คุณเขียน rikoComment ให้กำลังใจสั้นๆ สไตล์โค้ชริโกะที่น่ารัก สดใส พูดภาษาไทยลงท้ายด้วย ค่ะ/นะคะ/น้า มีอิโมจิน่ารักๆ
 - ให้ส่งผลลัพธ์กลับมาในรูปแบบ JSON ตามโครงสร้างตัวอย่างนี้เท่านั้น:
 {
-  "rikoComment": "ริโกะเขียนทักทายคุณ ${userName} และอธิบายตารางอาหารสุขภาพวันนี้สั้นๆ อย่างน่ารักสดใสค่ะ 🎀🥗",
+  "rikoComment": "ริโกะเขียนทักทายคุณ ${userName} และอธิบายตารางอาหารสุขภาพวันนี้สั้นๆ อย่างน่ารักสดใสค่ะ โดยรวมแคลอรีมื้ออาหารให้ได้ใกล้เคียง ${targetTdee} kcal ตามเป้าหมายค่ะ 🎀🥗",
   "meals": [
     {
       "type": "breakfast",

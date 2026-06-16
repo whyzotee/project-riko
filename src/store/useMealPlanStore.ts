@@ -8,7 +8,7 @@ export interface Meal {
   protein: number;
   fat: number;
   carbs: number;
-  location: 'ตามสั่ง' | '7-Eleven';
+  location: string;
 }
 
 export interface DailyMealPlan {

@@ -4,7 +4,6 @@ import { RefreshCw, Plus, Check } from "lucide-react";
 
 interface MealRowItemProps {
   meal: Meal;
-  index: number;
   isLogged: boolean;
   isMealLoading: boolean;
   onRefresh: () => void;
@@ -13,7 +12,6 @@ interface MealRowItemProps {
 
 export const MealRowItem: React.FC<MealRowItemProps> = ({
   meal,
-  index,
   isLogged,
   isMealLoading,
   onRefresh,
