@@ -64,7 +64,7 @@ export const MealRowItem: React.FC<MealRowItemProps> = ({
             {meal.location}
           </span>
         </div>
-        <h5 className="font-bold text-xs sm:text-sm text-foreground truncate">
+        <h5 className="font-bold text-xs sm:text-sm text-foreground leading-snug break-words">
           {meal.name}
         </h5>
         <div className="flex items-center gap-x-2.5 gap-y-1 text-[9px] text-muted-foreground flex-wrap font-bold">

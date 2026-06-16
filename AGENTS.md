@@ -7,7 +7,7 @@ Build a high-performance, premium-feel (iOS/Dropset style) Gamified Fitness & Re
 - **Runtime**: Bun. Imports use `@/` for `src/`.
 - **Mobile Mandate**: All screens must be fully functional at 375px width (iPhone SE).
 - **Layout**: Vertical stacking (`grid-cols-1`) on mobile; standardized rounding (`rounded-2xl`, `rounded-xl`).
-- **Typography**: Consistent "Dropset" headers for "Quest", "Stats", and "Profile" using `text-4xl font-black tracking-tight italic`.
+- **Typography**: Consistent "Dropset" headers for "Quest", "Stats", and "Profile" using `text-4xl font-black tracking-tight italic`. Standard card headers use `text-lg font-black tracking-tight text-foreground` with subtitles at `text-[10px] font-black tracking-widest uppercase text-muted-foreground`.
 - **Spacing**: Standardized responsive padding at `px-6 sm:px-10` for main content containers and `p-8 sm:p-10` for cards.
 - **Scroll Behavior**: Reset `main` container scroll to (0,0) on route changes via `useLocation` in `__root.tsx`.
 - **Loading Pattern**: Standardized "Thinking..." centered animation across all pages using `Loader2` and `Sparkles`.
@@ -26,6 +26,9 @@ Build a high-performance, premium-feel (iOS/Dropset style) Gamified Fitness & Re
 - `src/store/useGamifyStore.ts`: Zustand store managing workout checkins, points, custom rewards, and redemption history.
 - `src/components/Dashboard.tsx`: Redesigned gamified main dashboard featuring the points tracker, contribution grid, Coach Riko encouragement card, workout checkins, reward shop, and secondary calorie logs.
 - `src/routes/__root.tsx`: Updated bottom navigation, renaming the home tab to "Quest" with a `Trophy` icon.
+- `src/components/ui/input.tsx`: Shadcn UI input component.
+- `src/components/ui/select.tsx`: Shadcn UI custom native select wrapper component.
+- `src/lib/mealPlannerFallbackData.ts`: Extracted fallback static dataset for food recommendations.
 
 ## 📅 Task State
 1. [DONE] Setup Gamified Zustand Store (`useGamifyStore.ts`).
@@ -43,7 +46,8 @@ Build a high-performance, premium-feel (iOS/Dropset style) Gamified Fitness & Re
 
 13. [DONE] Deprecate and drop `workout_history` column from `profiles` table in SQL schema and TypeScript typings since records are stored relationally in `workout_records`.
 14. [DONE] Build Daily Meal Planner with local caching, single-meal refresh, and direct calorie logging for Thai street foods / 7-Eleven.
+15. [DONE] Personalize Riko's Daily Meal Planner to respect the user's active goal (Bulk/Cut/Maintain), display active plan badge in Profile/Planner, use Shadcn UI components (Input, Select, Button), and recalculate TDEE automatically.
 
 ---
-*Last Updated: Monday, June 8, 2026*
+*Last Updated: Wednesday, June 17, 2026*
 

@@ -12,6 +12,7 @@ interface RequestPayload {
   tdee?: number;
   mealType?: 'breakfast' | 'lunch' | 'dinner' | 'snack';
   excludeMealName?: string;
+  goal?: string;
 }
 
 console.info('recommend-meals server started');
@@ -43,39 +44,91 @@ Deno.serve(async (req: Request) => {
     }
 
     // 2. Parse Request Payload
-    const { date, userName, tdee, mealType, excludeMealName }: RequestPayload = await req.json();
+    const { date, userName, tdee, mealType, excludeMealName, goal }: RequestPayload = await req.json();
 
     const apiKey = Deno.env.get('GEMINI_API_KEY');
     if (!apiKey) throw new Error("GEMINI_API_KEY is not set");
 
     const targetTdee = tdee || 1800; // Fallback default if not provided
 
+    // Calculate dynamic values for the prompt few-shot example to prevent Gemini from copying static low-calorie figures
+    const bCal = Math.round(targetTdee * 0.25);
+    const bProt = Math.round(bCal * 0.08); 
+    const bFat = Math.round(bCal * 0.025);
+    const bCarb = Math.round(bCal * 0.11);
+
+    const lCal = Math.round(targetTdee * 0.35);
+    const lProt = Math.round(lCal * 0.08);
+    const lFat = Math.round(lCal * 0.025);
+    const lCarb = Math.round(lCal * 0.11);
+
+    const dCal = Math.round(targetTdee * 0.30);
+    const dProt = Math.round(dCal * 0.08);
+    const dFat = Math.round(dCal * 0.025);
+    const dCarb = Math.round(dCal * 0.11);
+
+    const sCal = Math.round(targetTdee * 0.10);
+    const sProt = Math.round(sCal * 0.125); 
+    const sFat = Math.round(sCal * 0.015);
+    const sCarb = Math.round(sCal * 0.075);
+
     let prompt = "";
     if (mealType) {
+      const singleMealCal = Math.round(targetTdee * (mealType === "breakfast" ? 0.25 : mealType === "lunch" ? 0.35 : mealType === "dinner" ? 0.30 : 0.10));
+      const mProt = Math.round(singleMealCal * 0.08);
+      const mFat = Math.round(singleMealCal * 0.025);
+      const mCarb = Math.round(singleMealCal * 0.11);
+
+      let goalInstruction = "";
+      if (goal) {
+        if (goal === "bulk") {
+          goalInstruction = `- เป้าหมายคือการ Bulk (เพิ่มกล้ามเนื้อ/น้ำหนัก) แนะนำเมนูที่มีโปรตีนสูงและคาร์โบไฮเดรต/พลังงานที่หนาแน่น สารอาหารครบถ้วน`;
+        } else if (goal === "cut" || goal === "weight_loss") {
+          goalInstruction = `- เป้าหมายคือการ Cut (ลดไขมัน/ลดน้ำหนัก) แนะนำเมนูโปรตีนสูงมาก คาร์บและไขมันต่ำ เน้นผักและเนื้อสัตว์ไขมันต่ำเพื่อให้อิ่มท้องนาน (Satiety)`;
+        } else {
+          goalInstruction = `- เป้าหมายคือการ Maintain (รักษาน้ำหนัก) แนะนำเมนูที่มีความสมดุลของสารอาหารอย่างเหมาะสม`;
+        }
+      }
+
       prompt = `คุณคือ Coach Riko (โค้ชริโกะ) แนะนำเมนูอาหารทางเลือกใหม่
 ความต้องการ: แนะนำเมนูใหม่สำหรับมื้อ "${mealType}" แทนที่เมนูเดิมชื่อ "${excludeMealName || ""}" ของคุณ ${userName} ในวันที่ ${date}
 ข้อกำหนดอาหาร:
 - ต้องเป็นอาหารที่หาทานได้ง่ายในไทย เช่น ร้านอาหารตามสั่ง, ร้านข้าวแกง, ร้านก๋วยเตี๋ยว, หรือ 7-Eleven ในประเทศไทย
 - อาหารสุขภาพ โปรตีนสูง แคลอรีพอดี คาร์บและไขมันสมดุล
 - ห้ามเสนอเมนูเดิมที่ชื่อว่า "${excludeMealName || ""}" เด็ดขาด
-- คำนวณปริมาณพลังงานและสารอาหารของมื้อนี้ให้เหมาะสมกับเป้าหมายแคลอรีประจำวันคือ ${targetTdee} kcal (เฉลี่ยให้เหมาะสมกับสัดส่วนมื้อ)
+- ห้ามระบุปริมาณเจาะจงเกินไปในชื่ออาหาร (เช่น ห้ามเขียน "ข้าวสวย 2 ทัพพี", "เนื้อหมู 150 กรัม") ให้เขียนเมนูในลักษณะที่สามารถสั่งตามร้านจริงได้ เช่น "เกาเหลาพิเศษน้ำใส + ข้าวเปล่า"
+${goalInstruction}
+- คำนวณปริมาณพลังงานและสารอาหารของมื้อนี้ให้เหมาะสมกับเป้าหมายแคลอรีประจำวันของมื้อนี้คือประมาณ ${singleMealCal} kcal
 - ให้ส่งผลลัพธ์กลับมาในรูปแบบ JSON ตามตัวอย่างนี้เท่านั้น:
 {
   "type": "${mealType}",
   "name": "ชื่ออาหารทางเลือกใหม่ที่ดีต่อสุขภาพ",
-  "calories": 250,
-  "protein": 22,
-  "fat": 6,
-  "carbs": 30,
+  "calories": ${singleMealCal},
+  "protein": ${mProt},
+  "fat": ${mFat},
+  "carbs": ${mCarb},
   "location": "ตามสั่ง / ร้านข้าวแกง / ร้านก๋วยเตี๋ยว / 7-Eleven"
 }`;
     } else {
+      let goalInstruction = "";
+      if (goal) {
+        if (goal === "bulk") {
+          goalInstruction = `- ผู้ใช้มีเป้าหมายคือการ Bulk (เพิ่มกล้ามเนื้อ) ดังนั้นควรจัดตารางอาหารที่เน้นคาร์โบไฮเดรตและโปรตีนคุณภาพสูงเพื่อช่วยสร้างกล้ามเนื้อ เมนูควรเป็นสไตล์พลังงานหนาแน่น สั่งพิเศษ/เพิ่มเนื้อสัตว์/เพิ่มไข่`;
+        } else if (goal === "cut" || goal === "weight_loss") {
+          goalInstruction = `- ผู้ใช้มีเป้าหมายคือการ Cut (ลดไขมัน) ดังนั้นควรจัดตารางอาหารที่เน้นโปรตีนสูงมาก คาร์โบไฮเดรตและไขมันปานกลางถึงต่ำ เน้นใยอาหาร/ผักเยอะๆ และเนื้อสัตว์ไขมันต่ำเพื่อช่วยคุมความหิวได้ดี`;
+        } else {
+          goalInstruction = `- ผู้ใช้มีเป้าหมายคือการ Maintain (รักษาน้ำหนัก) จัดอาหารที่ดีต่อสุขภาพ สมดุล คาร์บ โปรตีน ไขมัน สัดส่วนดีต่อการรักษาสุขภาพโดยทั่วไป`;
+        }
+      }
+
       prompt = `คุณคือ Coach Riko (โค้ชริโกะ) นักกำหนดอาหารและผู้ช่วยส่วนตัวสุดน่ารัก
 ความต้องการ: จัดตารางอาหาร 4 มื้อ (breakfast, lunch, dinner, snack) ประจำวันที่ ${date} สำหรับคุณ ${userName}
 ข้อกำหนดอาหาร:
 - ต้องเป็นอาหารที่หาทานได้ง่ายในประเทศไทย เช่น ร้านอาหารตามสั่ง, ร้านข้าวแกง, ร้านก๋วยเตี๋ยวชนิดต่างๆ, หรือของกินใน 7-Eleven
 - อาหารเพื่อสุขภาพ มีสารอาหารครบถ้วน (โปรตีนสูง คาร์บพอดี ไขมันต่ำ)
-- แคลอรีรวมของทั้ง 4 มื้อ (เช้า + กลางวัน + เย็น + ของว่าง) ต้องมีค่าใกล้เคียงกับค่า TDEE เป้าหมายประจำวันของผู้ใช้คือ ${targetTdee} kcal (+/- 100 kcal) โดยเฉลี่ยแต่ละมื้อให้สัมพันธ์กับเป้าหมายนี้ (เช่น มื้อเช้า 25%, มื้อกลางวัน 35%, มื้อเย็น 30%, ของว่าง 10% ของแคลอรีเป้าหมาย)
+- ห้ามระบุปริมาณที่ละเอียดหรือวัดปริมาณยุ่งยากในชื่ออาหาร (เช่น ห้ามใช้คำว่า "ข้าวสวย 2 ทัพพี", "เนื้อหมู 150 กรัม", หรือ "กล้วยหอม 1.5 ลูก") ให้เขียนเป็นชื่อเมนูสไตล์ร้านข้างทางทั่วไป เช่น "ข้าวกะเพราอกไก่พิเศษน้ำมันน้อย + ไข่ดาว", "เส้นหมี่น้ำใสพิเศษอกไก่ฉีก", "ข้าวแกงส้มผักรวม + ไข่ต้ม"
+${goalInstruction}
+- แคลอรีรวมของทั้ง 4 มื้อ (เช้า + กลางวัน + เย็น + ของว่าง) ต้องมีค่าใกล้เคียงกับค่า TDEE เป้าหมายประจำวันของผู้ใช้คือ ${targetTdee} kcal (+/- 100 kcal) โดยเฉลี่ยแต่ละมื้อให้สัมพันธ์กับเป้าหมายนี้
 - ให้คุณเขียน rikoComment ให้กำลังใจสั้นๆ สไตล์โค้ชริโกะที่น่ารัก สดใส พูดภาษาไทยลงท้ายด้วย ค่ะ/นะคะ/น้า มีอิโมจิน่ารักๆ
 - ให้ส่งผลลัพธ์กลับมาในรูปแบบ JSON ตามโครงสร้างตัวอย่างนี้เท่านั้น:
 {
@@ -84,37 +137,37 @@ Deno.serve(async (req: Request) => {
     {
       "type": "breakfast",
       "name": "ชื่ออาหารเช้า",
-      "calories": 280,
-      "protein": 24,
-      "fat": 8,
-      "carbs": 32,
+      "calories": ${bCal},
+      "protein": ${bProt},
+      "fat": ${bFat},
+      "carbs": ${bCarb},
       "location": "7-Eleven / ร้านข้าวแกง"
     },
     {
       "type": "lunch",
       "name": "ชื่ออาหารกลางวัน",
-      "calories": 450,
-      "protein": 30,
-      "fat": 12,
-      "carbs": 55,
+      "calories": ${lCal},
+      "protein": ${lProt},
+      "fat": ${lFat},
+      "carbs": ${lCarb},
       "location": "ตามสั่ง / ร้านก๋วยเตี๋ยว"
     },
     {
       "type": "dinner",
       "name": "ชื่ออาหารเย็น",
-      "calories": 320,
-      "protein": 28,
-      "fat": 6,
-      "carbs": 38,
+      "calories": ${dCal},
+      "protein": ${dProt},
+      "fat": ${dFat},
+      "carbs": ${dCarb},
       "location": "ตามสั่ง / ร้านข้าวแกง"
     },
     {
       "type": "snack",
       "name": "ชื่อของว่าง",
-      "calories": 160,
-      "protein": 20,
-      "fat": 2,
-      "carbs": 12,
+      "calories": ${sCal},
+      "protein": ${sProt},
+      "fat": ${sFat},
+      "carbs": ${sCarb},
       "location": "7-Eleven"
     }
   ]

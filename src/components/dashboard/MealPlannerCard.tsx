@@ -14,7 +14,7 @@ interface MealPlannerCardProps {
 }
 
 export const MealPlannerCard: React.FC<MealPlannerCardProps> = ({ todayStr, onMealLogged, tdee }) => {
-  const { session } = useAppStore();
+  const { session, profile } = useAppStore();
   const { mealPlans, loading, error, setMealPlan, updateMeal, setLoading, setError } = useMealPlanStore();
 
   const [localMealLoading, setLocalMealLoading] = useState<Record<number, boolean>>({});
@@ -36,7 +36,7 @@ export const MealPlannerCard: React.FC<MealPlannerCardProps> = ({ todayStr, onMe
     setError(null);
     try {
       const username = getUserName();
-      const plan = await generateMealPlanFromAPI(todayStr, username, tdee);
+      const plan = await generateMealPlanFromAPI(todayStr, username, tdee, profile?.goal || "maintenance");
       setMealPlan(todayStr, plan);
     } catch (err) {
       console.error(err);
@@ -51,7 +51,14 @@ export const MealPlannerCard: React.FC<MealPlannerCardProps> = ({ todayStr, onMe
     setLocalMealLoading((prev) => ({ ...prev, [index]: true }));
     try {
       const username = getUserName();
-      const newMeal = await generateSingleMealFromAPI(todayStr, meal.type, meal.name, username, tdee);
+      const newMeal = await generateSingleMealFromAPI(
+        todayStr,
+        meal.type,
+        meal.name,
+        username,
+        tdee,
+        profile?.goal || "maintenance"
+      );
       updateMeal(todayStr, index, newMeal);
       
       // Clear logged state for this meal slot since it's a new meal
@@ -110,11 +117,14 @@ export const MealPlannerCard: React.FC<MealPlannerCardProps> = ({ todayStr, onMe
             <Utensils className="w-5 h-5" />
           </div>
           <div>
-            <h4 className="font-black text-foreground text-base">
+            <h4 className="font-black text-foreground text-lg tracking-tight">
               วันนี้กินอะไรดี? 🍽️
             </h4>
-            <p className="text-[9px] font-black tracking-widest uppercase text-muted-foreground">
+            <p className="text-[10px] font-black tracking-widest uppercase text-muted-foreground flex items-center gap-1.5 flex-wrap">
               Riko's Daily Meal Planner
+              <span className="inline-block px-1.5 py-0.5 bg-primary/10 text-secondary border border-primary/20 rounded-md text-[8px] tracking-normal font-black uppercase">
+                {profile?.goal === 'bulk' ? 'Bulk 📈' : (profile?.goal === 'cut' || profile?.goal === 'weight_loss' ? 'Cut 📉' : 'Maintain ⚖️')}
+              </span>
             </p>
           </div>
         </div>
